@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sol de Ayer — The Crew</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: auto; }
+    body { font-family: 'DM Sans', sans-serif; background: #FBF9F5; overflow-x: hidden; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <script>
+  /* ═══════════════════════════════════════════════════════════════════════
+     SOL DE AYER — TEAM PAGE · SCROLL-SNAP CLOTHESLINE
+     ═══════════════════════════════════════════════════════════════════════
+     
+     Adapts the Events scroll-snap state machine to the Team page.
+     Each "snap" is a department section with Polaroid cards on a rope.
+
+     STATE MACHINE:
+       BEFORE → user scrolls down, section enters viewport → ACTIVE
+       ACTIVE → departments snap one by one, scroll locked
+       ACTIVE → last department reached + scroll down → AFTER
+       AFTER  → user scrolls back up → ACTIVE (reverse)
+       ACTIVE → first department + scroll up → BEFORE
+
+     TIMING CHAIN: 500ms (slightly slower than events for gravitas)
+       - CSS card transition: 0.5s
+       - JS animation lock: 500ms
+       - Wheel cooldown: 500ms
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  "use strict";
+  var useState  = React.useState;
+  var useEffect = React.useEffect;
+  var useRef    = React.useRef;
+  var useCallback = React.useCallback;
+  var h         = React.createElement;
+
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     1. DESIGN TOKENS
+     ═══════════════════════════════════════════════════════════════════════ */
+  var C = {
+    orange:    "#FF8C00",
+    navy:      "#1A2E4C",
+    cream:     "#FBF9F5",
+    warmWhite: "#F5EFE6",
+    paper:     "#FFFDF8",
+    rope:      "#B8894A",
+    ropeDark:  "#7A5C1E",
+    ropeLight: "#D9B87A",
+    nail:      "#6B4E1A",
+    grain: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 512 512\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'0.035\'/%3E%3C/svg%3E")',
+    cardGrain: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'0.07\'/%3E%3C/svg%3E")',
+  };
+
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     2. TEAM DATA
+     ═══════════════════════════════════════════════════════════════════════ */
+  var SECTIONS = [
+    {
+      title: "The ones who started it all",
+      emojis: "👑 🎓 🌟",
+      members: [
+        { name: "Nikola Stevanovic", role: "CEO (Chief Escapade Officer)", quote: "Living proof that graduating and partying go together", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_1.jpeg" },
+        { name: "Milo Cuti", role: "VP (Vibes & Parties)", quote: "90% AI-generated, 10% Swiss-Italian, and 100% ready for the Dominican sun", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_2.jpeg" },
+      ],
+    },
+    {
+      title: "Keeping the fun affordable",
+      emojis: "💰 📊 🧮",
+      members: [
+        { name: "Sacha Dassonville & Valery Tay", role: "Budget Wizards", quote: "We strive to maximize the fun/price ratio", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_5.jpeg" },
+      ],
+    },
+    {
+      title: "Making sure you never forget us",
+      emojis: "📸 ✨ 🎨",
+      members: [
+        { name: "Stephanie Clemo & Rosalie Stanek", role: "Vibe Curator · Hype Captain", quote: "Grad trips are like onions. Onions have layers.", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_6.jpeg" },
+        { name: "Sacha Fournier", role: "Vibe Coder", quote: "Running the same deficit at MJC and on Claude credits", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_10.jpeg" },
+      ],
+    },
+    {
+      title: "Drip you can take home",
+      emojis: "👕 🧢 🛍️",
+      members: [
+        { name: "Hugo Gomes de Andrade", role: "Drip Dealer", quote: "As long as the merch stays clean, everything's fine", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_4.jpeg" },
+      ],
+    },
+    {
+      title: "Making sure we get there (and back)",
+      emojis: "🗺️ ✈️ 🧳",
+      members: [
+        { name: "Teo Lonnback", role: "Route Master", quote: "Making sure no one sleeps at the airport", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_7.jpeg" },
+        { name: "Constanza Quintana", role: "Visa Whisperer", quote: "Your favourite visa expert", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_8.jpeg" },
+        { name: "Paulina Chávez", role: "Chaos Coordinator", quote: "It's on time because we panicked early", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_9.jpeg" },
+      ],
+    },
+    {
+      title: "Curating the unforgettable moments",
+      emojis: "🍷 🎉 💃",
+      members: [
+        { name: "Lili Amstutz", role: "Culture Connector", quote: "We'll show them the Dominican sazón and swing", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_3.jpeg" },
+        { name: "Max Bally, Giorgio & Pietro", role: "Head of Fun · Fun Assistants", quote: "fun fun fun", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_14.jpeg" },
+      ],
+    },
+    {
+      title: "Throwing parties with purpose",
+      emojis: "🍹 🎊 🪩",
+      members: [
+        { name: "Diane Bordry", role: "Cocktail Curator", quote: "Because poor decision-making requires proper hydration", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_11.jpeg" },
+        { name: "Claire Berthoud", role: "Party Architect", quote: "Optimistes chaos", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_12.jpeg" },
+        { name: "Helena Riba", role: "Party Architect", quote: "Trading bikes and tapas for palm trees", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_13.jpeg" },
+      ],
+    },
+  ];
+
+  var TOTAL = SECTIONS.length;
+  var ROPE_Y_PCT = 45; /* % from top where the rope sits */
+
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     3. SHARED UTILITIES
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  function useIsMobile(breakpoint) {
+    var bp = breakpoint || 768;
+    var s = useState(typeof window !== "undefined" ? window.innerWidth < bp : false);
+    var isMobile = s[0]; var set = s[1];
+    useEffect(function() {
+      function check() { set(window.innerWidth < bp); }
+      check();
+      window.addEventListener("resize", check);
+      return function() { window.removeEventListener("resize", check); };
+    }, [bp]);
+    return isMobile;
+  }
+
+  function FilmGrain(props) {
+    return h("div", { style: {
+      position: "absolute", inset: 0, opacity: props.opacity || 0.04,
+      pointerEvents: "none", zIndex: 1,
+      backgroundImage: C.grain, backgroundSize: "200px", mixBlendMode: "multiply",
+    }});
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     4. CLOTHESPIN SVG
+     ═══════════════════════════════════════════════════════════════════════ */
+  function Clothespin(props) {
+    var side = props.side || "left";
+    return h("svg", {
+      width: 20, height: 30, viewBox: "0 0 22 32", fill: "none",
+      style: {
+        position: "absolute", top: -12,
+        left: side === "left" ? "30%" : undefined,
+        right: side === "right" ? "30%" : undefined,
+        zIndex: 3,
+        filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.12))",
+      }
+    },
+      h("rect", { x: 6, y: 0, width: 10, height: 18, rx: 3, fill: "#C4956A", stroke: "#8B6914", strokeWidth: 0.7 }),
+      h("rect", { x: 8, y: 3, width: 6, height: 4, rx: 1.5, fill: "#A37B4F" }),
+      h("line", { x1: 7, y1: 18, x2: 9, y2: 28, stroke: "#8B6914", strokeWidth: 1.4, strokeLinecap: "round" }),
+      h("line", { x1: 15, y1: 18, x2: 13, y2: 28, stroke: "#8B6914", strokeWidth: 1.4, strokeLinecap: "round" })
+    );
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     5. PERSISTENT ROPE (stays fixed across all snap positions)
+     ═══════════════════════════════════════════════════════════════════════ */
+  function PersistentRope() {
+    return h("div", { style: {
+      position: "absolute",
+      top: ROPE_Y_PCT + "%",
+      left: 0, right: 0, height: 8, zIndex: 5,
+      pointerEvents: "none", transform: "translateY(-50%)",
+    }},
+      /* SVG braided rope */
+      h("svg", {
+        width: "100%", height: "8", preserveAspectRatio: "none",
+        style: { display: "block" }
+      },
+        h("defs", null,
+          h("pattern", { id: "ropeWeave", x: 0, y: 0, width: 14, height: 8, patternUnits: "userSpaceOnUse" },
+            h("line", { x1: -1, y1: 8, x2: 7, y2: 0, stroke: C.ropeDark, strokeWidth: 3.5, strokeLinecap: "round" }),
+            h("line", { x1: 6, y1: 8, x2: 14, y2: 0, stroke: C.ropeDark, strokeWidth: 3.5, strokeLinecap: "round" }),
+            h("line", { x1: 0, y1: 8, x2: 8, y2: 0, stroke: C.rope, strokeWidth: 3, strokeLinecap: "round" }),
+            h("line", { x1: 7, y1: 8, x2: 15, y2: 0, stroke: C.rope, strokeWidth: 3, strokeLinecap: "round" }),
+            h("line", { x1: 2, y1: 7, x2: 9, y2: 1, stroke: "#C9A060", strokeWidth: 2, strokeLinecap: "round" }),
+            h("line", { x1: 9, y1: 7, x2: 16, y2: 1, stroke: "#C9A060", strokeWidth: 2, strokeLinecap: "round" }),
+            h("line", { x1: 3, y1: 6, x2: 9, y2: 1.5, stroke: C.ropeLight, strokeWidth: 1, strokeLinecap: "round", opacity: 0.7 }),
+            h("line", { x1: 10, y1: 6, x2: 16, y2: 1.5, stroke: C.ropeLight, strokeWidth: 1, strokeLinecap: "round", opacity: 0.7 })
+          ),
+          h("filter", { id: "ropeFuzz", x: "-2%", y: "-20%", width: "104%", height: "140%" },
+            h("feTurbulence", { type: "fractalNoise", baseFrequency: 0.04, numOctaves: 3, seed: 42, result: "noise" }),
+            h("feDisplacementMap", { in: "SourceGraphic", in2: "noise", scale: 1.2, xChannelSelector: "R", yChannelSelector: "G" })
+          )
+        ),
+        h("rect", { x: 0, y: 0, width: "100%", height: 8, fill: "url(#ropeWeave)", rx: 4, ry: 4, filter: "url(#ropeFuzz)" }),
+        h("line", { x1: 0, y1: 1, x2: "100%", y2: 1, stroke: "rgba(220,190,140,0.25)", strokeWidth: 0.5 }),
+        h("line", { x1: 0, y1: 7, x2: "100%", y2: 7, stroke: "rgba(80,50,10,0.2)", strokeWidth: 0.5 })
+      ),
+      /* Rope shadow */
+      h("div", { style: {
+        position: "absolute", top: 6, left: 20, right: 20, height: 4,
+        background: "rgba(90,60,20,0.08)", borderRadius: "50%", filter: "blur(3px)",
+      }}),
+      /* Left nail */
+      h("div", { style: { position: "absolute", top: -5, left: 24, zIndex: 6 } },
+        h("svg", { width: 16, height: 18, viewBox: "0 0 16 18", fill: "none" },
+          h("circle", { cx: 8, cy: 6, r: 5.5, fill: "url(#nailGradL)", stroke: "#5A3E14", strokeWidth: 0.5 }),
+          h("rect", { x: 6.5, y: 10, width: 3, height: 7, rx: 1, fill: C.nail }),
+          h("defs", null,
+            h("radialGradient", { id: "nailGradL", cx: "40%", cy: "35%" },
+              h("stop", { offset: "0%", stopColor: "#C4956A" }),
+              h("stop", { offset: "100%", stopColor: C.nail })
+            )
+          )
+        )
+      ),
+      /* Right nail */
+      h("div", { style: { position: "absolute", top: -5, right: 24, zIndex: 6 } },
+        h("svg", { width: 16, height: 18, viewBox: "0 0 16 18", fill: "none" },
+          h("circle", { cx: 8, cy: 6, r: 5.5, fill: "url(#nailGradR)", stroke: "#5A3E14", strokeWidth: 0.5 }),
+          h("rect", { x: 6.5, y: 10, width: 3, height: 7, rx: 1, fill: C.nail }),
+          h("defs", null,
+            h("radialGradient", { id: "nailGradR", cx: "40%", cy: "35%" },
+              h("stop", { offset: "0%", stopColor: "#C4956A" }),
+              h("stop", { offset: "100%", stopColor: C.nail })
+            )
+          )
+        )
+      )
+    );
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     6. POLAROID CARD
+     ═══════════════════════════════════════════════════════════════════════ */
+  function PolaroidCard(props) {
+    var member = props.member;
+    var index = props.index;
+    var visible = props.visible;
+    var mobile = props.mobile;
+
+    var hoverArr = useState(false);
+    var hovered = hoverArr[0]; var setHovered = hoverArr[1];
+
+    var swingOffsets = [-3, 2.5, -1.5, 3.5, -2, 2.8];
+    var baseRot = swingOffsets[index % swingOffsets.length];
+    var entryDelay = index * 120;
+
+    var cardW = mobile ? 150 : 190;
+    var imgH = mobile ? 170 : 210;
+
+    return h("div", {
+      onMouseEnter: function() { setHovered(true); },
+      onMouseLeave: function() { setHovered(false); },
+      style: {
+        position: "relative",
+        opacity: visible ? 1 : 0,
+        transform: visible
+          ? "rotate(" + baseRot + "deg) translateY(0px) scale(1)"
+          : "rotate(" + (baseRot + 10) + "deg) translateY(50px) scale(0.88)",
+        transition: "all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) " + entryDelay + "ms",
+        flexShrink: 0,
+      }
+    },
+      h(Clothespin, { side: index % 2 === 0 ? "left" : "right" }),
+      h("div", { style: {
+        background: C.paper,
+        padding: mobile ? "7px 7px 28px" : "9px 9px 36px",
+        boxShadow: hovered
+          ? "0 14px 32px rgba(26,46,76,0.2), 0 2px 8px rgba(0,0,0,0.08)"
+          : "0 4px 14px rgba(26,46,76,0.09), 0 1px 3px rgba(0,0,0,0.05)",
+        width: cardW,
+        cursor: "default",
+        transition: "box-shadow 0.3s ease, transform 0.25s ease",
+        transform: hovered ? "scale(1.05) rotate(0deg)" : "",
+      }},
+        /* Image */
+        h("div", { style: { position: "relative", overflow: "hidden" } },
+          h("img", { src: member.img, alt: member.name, style: {
+            width: "100%", height: imgH, objectFit: "cover", display: "block",
+            filter: "saturate(0.85) contrast(1.05) sepia(0.06)",
+          }}),
+          /* Grain overlay on image */
+          h("div", { style: {
+            position: "absolute", inset: 0,
+            backgroundImage: C.cardGrain, backgroundSize: "150px",
+            mixBlendMode: "overlay", pointerEvents: "none",
+          }})
+        ),
+        /* Caption */
+        h("div", { style: { paddingTop: 7, textAlign: "center" } },
+          h("p", { style: {
+            fontFamily: "'Cormorant Garamond', Georgia, serif",
+            fontSize: mobile ? 12 : 14, fontWeight: 600,
+            color: C.navy, margin: "3px 0 2px", lineHeight: 1.2,
+          }}, member.name),
+          h("p", { style: {
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: mobile ? 9 : 10.5, color: C.orange,
+            margin: "1px 0", letterSpacing: "0.02em",
+          }}, member.role),
+          h("p", { style: {
+            fontFamily: "'Cormorant Garamond', Georgia, serif",
+            fontSize: mobile ? 10 : 11, fontStyle: "italic",
+            color: "rgba(26,46,76,0.4)",
+            margin: "5px 8px 0", lineHeight: 1.3,
+          }}, "\u201C" + member.quote + "\u201D")
+        )
+      )
+    );
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     7. DEPARTMENT SLIDE (snap unit)
+     ═══════════════════════════════════════════════════════════════════════
+     
+     Receives `phase` as integer offset from active department:
+       phase  0 = active (centered, full opacity)
+       phase  1 = next (offset right, faded)
+       phase -1 = previous (offset left, faded)
+     
+     CSS transition creates the snap animation (matches timing chain).
+     ═══════════════════════════════════════════════════════════════════════ */
+  function DepartmentSlide(props) {
+    var section = props.section;
+    var phase = props.phase;
+    var mobile = props.mobile;
+
+    var tx = phase * 110;
+    var opa = 1 - Math.abs(phase) * 1.0;
+    var sc = 1 - Math.abs(phase) * 0.06;
+    var isActive = Math.abs(phase) < 0.3;
+
+    return h("div", { style: {
+      position: "absolute", inset: 0,
+      transform: "translateX(" + tx + "%) scale(" + Math.max(sc, 0.88) + ")",
+      opacity: Math.max(0, Math.min(1, opa)),
+      pointerEvents: isActive ? "auto" : "none",
+      transition: "transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1)",
+      willChange: "transform, opacity",
+      zIndex: isActive ? 5 : 1,
+    }},
+      /* Section header — above the rope line */
+      h("div", { style: {
+        position: "absolute",
+        top: ROPE_Y_PCT + "%",
+        left: 0, right: 0,
+        transform: "translateY(calc(-100% - 24px))",
+        textAlign: "center",
+        padding: "0 20px",
+      }},
+        h("span", { style: {
+          fontSize: mobile ? 22 : 26, display: "block", marginBottom: 6,
+        }}, section.emojis),
+        h("h2", { style: {
+          fontFamily: "'Cormorant Garamond', Georgia, serif",
+          fontSize: mobile ? 22 : 30, fontWeight: 600,
+          color: C.navy, margin: 0, lineHeight: 1.2,
+        }}, section.title)
+      ),
+
+      /* Polaroid cards — hang below the rope */
+      h("div", { style: {
+        position: "absolute",
+        top: ROPE_Y_PCT + "%",
+        left: 0, right: 0,
+        paddingTop: 10,
+        display: "flex",
+        justifyContent: "center",
+        gap: mobile ? 16 : 28,
+        flexWrap: "wrap",
+      }},
+        section.members.map(function(member, i) {
+          return h(PolaroidCard, {
+            key: member.name, member: member, index: i,
+            visible: isActive, mobile: mobile,
+          });
+        })
+      )
+    );
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     8. PROGRESS DOTS
+     ═══════════════════════════════════════════════════════════════════════ */
+  function TeamDots(props) {
+    var count = props.count;
+    var activeIndex = props.activeIndex;
+    return h("div", { style: {
+      display: "flex", alignItems: "center", gap: 10,
+    }},
+      Array.from({ length: count }).map(function(_, i) {
+        var isActive = i === activeIndex;
+        return h("div", { key: i, style: {
+          position: "relative",
+          width: isActive ? 28 : 10, height: 10, borderRadius: 5,
+          background: i < activeIndex ? C.orange + "55" : C.navy + "15",
+          overflow: "hidden",
+          transition: "width 0.5s cubic-bezier(0.22, 1, 0.36, 1), background 0.5s ease",
+        }},
+          isActive && h("div", { style: {
+            position: "absolute", inset: 0, background: C.orange, borderRadius: 5,
+          }}),
+          !isActive && i < activeIndex && h("div", { style: {
+            position: "absolute", inset: 0, background: C.orange + "88", borderRadius: 5,
+          }})
+        );
+      })
+    );
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     9. ROPE PROGRESS BAR (top of section)
+     ═══════════════════════════════════════════════════════════════════════ */
+  function RopeProgressBar(props) {
+    var progress = (props.activeIndex) / (TOTAL - 1);
+    return h("div", { style: {
+      position: "absolute", top: 20, left: 40, right: 40,
+      height: 3, zIndex: 10, borderRadius: 2, overflow: "hidden",
+    }},
+      h("div", { style: {
+        position: "absolute", inset: 0,
+        background: "rgba(196,149,106,0.12)", borderRadius: 2,
+      }}),
+      h("div", { style: {
+        position: "absolute", top: 0, left: 0, bottom: 0,
+        width: (progress * 100) + "%",
+        background: "linear-gradient(90deg, #C4956A, #8B6914)",
+        borderRadius: 2,
+        boxShadow: "0 0 8px rgba(196,149,106,0.3)",
+        transition: "width 0.5s cubic-bezier(0.22, 1, 0.36, 1)",
+      }},
+        h("div", { style: {
+          position: "absolute", inset: 0,
+          background: "repeating-linear-gradient(90deg, transparent 0px, transparent 8px, rgba(0,0,0,0.06) 8px, rgba(0,0,0,0.06) 9px)",
+        }})
+      ),
+      h("div", { style: {
+        position: "absolute", top: -4,
+        left: "calc(" + (progress * 100) + "% - 5px)",
+        width: 11, height: 11, borderRadius: "50%",
+        background: "radial-gradient(circle at 40% 35%, #FF8C00, #CC7000)",
+        boxShadow: "0 1px 4px rgba(255,140,0,0.4)",
+        transition: "left 0.5s cubic-bezier(0.22, 1, 0.36, 1)",
+      }})
+    );
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     10. SECTION COUNTER
+     ═══════════════════════════════════════════════════════════════════════ */
+  function SectionCounter(props) {
+    return h("div", { style: {
+      position: "absolute", top: 22, right: 20, zIndex: 10,
+      fontFamily: "'Cormorant Garamond', Georgia, serif",
+      fontSize: 15, color: "rgba(26,46,76,0.35)", letterSpacing: "0.05em",
+    }},
+      h("span", { style: { color: C.orange, fontWeight: 600, fontSize: 18 } },
+        String(props.activeIndex + 1).padStart(2, "0")),
+      h("span", { style: { margin: "0 4px" } }, "/"),
+      h("span", null, String(TOTAL).padStart(2, "0"))
+    );
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     11. SCROLL HINT
+     ═══════════════════════════════════════════════════════════════════════ */
+  function ScrollHint(props) {
+    return h("div", { style: {
+      position: "absolute", bottom: 56, left: "50%",
+      transform: "translateX(-50%)", zIndex: 10,
+      opacity: props.visible ? 0.7 : 0,
+      transition: "opacity 0.8s ease",
+      pointerEvents: "none", textAlign: "center",
+    }},
+      h("div", { style: {
+        fontFamily: "'DM Sans', sans-serif", fontSize: 12,
+        color: "rgba(26,46,76,0.4)", letterSpacing: "0.06em",
+        display: "flex", alignItems: "center", gap: 8,
+      }},
+        h("span", { className: "hint-arrow-l" }, "\u2190"),
+        "scroll to pull the line",
+        h("span", { className: "hint-arrow-r" }, "\u2192")
+      )
+    );
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     12. TEAM SECTION — SCROLL-SNAP ENGINE
+     ═══════════════════════════════════════════════════════════════════════
+     Adapted from the Events section state machine.
+     
+     ARCHITECTURE:
+     - Section is a normal-flow block (not sticky)
+     - When user scrolls into ZONE, section captures scroll
+     - Cards snap one-at-a-time via CSS transitions
+     - On last card + scroll down → releases scroll
+     ═══════════════════════════════════════════════════════════════════════ */
+  function TeamSection() {
+    var sectionRef = useRef(null);
+    var stateRef = useRef("BEFORE");
+    var cardRef = useRef(0);
+    var n = TOTAL;
+    var mobile = useIsMobile();
+    var ZONE = 300;
+
+    var cardArr = useState(0);
+    var cardIndex = cardArr[0];
+    var setCardIndex = cardArr[1];
+
+    var visArr = useState(false);
+    var visible = visArr[0];
+    var setVisible = visArr[1];
+
+    var hintArr = useState(true);
+    var showHint = hintArr[0];
+    var setShowHint = hintArr[1];
+
+    /* Visibility observer */
+    useEffect(function() {
+      var el = sectionRef.current;
+      if (!el) return;
+      var obs = new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) { setVisible(true); obs.disconnect(); }
+      }, { threshold: 0.1 });
+      obs.observe(el);
+      return function() { obs.disconnect(); };
+    }, []);
+
+    /* touch-action state for mobile scroll lock */
+    var taArr = useState("auto");
+    var touchAction = taArr[0];
+    var setTouchAction = taArr[1];
+
+    /* Animation lock — matches CSS 500ms transition */
+    var ANIM_MS = 500;
+    var animatingRef = useRef(false);
+
+    /* ─── Core functions ─── */
+    function snapTo(idx) {
+      if (idx < 0 || idx >= n) return;
+      cardRef.current = idx;
+      setCardIndex(idx);
+      setShowHint(false);
+      animatingRef.current = true;
+      setTimeout(function() { animatingRef.current = false; }, ANIM_MS);
+    }
+
+    function alignSection() {
+      var el = sectionRef.current;
+      if (!el) return;
+      window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top, behavior: "instant" });
+    }
+
+    function activate(startIdx) {
+      alignSection();
+      stateRef.current = "ACTIVE";
+      setTouchAction("none");
+      snapTo(startIdx);
+    }
+
+    function release(newState) {
+      stateRef.current = newState;
+      setTouchAction("auto");
+    }
+
+    function inZone() {
+      var el = sectionRef.current;
+      if (!el) return false;
+      var t = el.getBoundingClientRect().top;
+      return t > -ZONE && t < ZONE;
+    }
+
+
+    /* ═════════════════════════════════════════════════════════════════
+       DESKTOP WHEEL HANDLER
+       ═════════════════════════════════════════════════════════════════ */
+    useEffect(function() {
+      var lastSnap = 0;
+      var COOLDOWN = 500;
+      var postAccum = 0;
+      var FRESH = 30;
+
+      function handler(e) {
+        var el = sectionRef.current;
+        if (!el) return;
+        var delta = e.deltaY;
+        var st = stateRef.current;
+        var now = Date.now();
+
+        if (st === "BEFORE") {
+          if (delta > 0 && inZone()) {
+            e.preventDefault();
+            activate(0);
+            lastSnap = now; postAccum = 0;
+          }
+          return;
+        }
+
+        if (st === "ACTIVE") {
+          e.preventDefault();
+          if (animatingRef.current) return;
+          if (now - lastSnap < COOLDOWN) { postAccum = 0; return; }
+          postAccum += delta;
+          if (Math.abs(postAccum) < FRESH) return;
+
+          if (postAccum > 0) {
+            var cur = cardRef.current;
+            if (cur >= n - 1) { release("AFTER"); return; }
+            snapTo(cur + 1); lastSnap = now; postAccum = 0;
+          } else {
+            var cur2 = cardRef.current;
+            if (cur2 <= 0) { release("BEFORE"); return; }
+            snapTo(cur2 - 1); lastSnap = now; postAccum = 0;
+          }
+          return;
+        }
+
+        if (st === "AFTER") {
+          if (delta < 0 && inZone()) {
+            e.preventDefault();
+            activate(n - 1);
+            lastSnap = now; postAccum = 0;
+          }
+        }
+      }
+      window.addEventListener("wheel", handler, { passive: false });
+      return function() { window.removeEventListener("wheel", handler); };
+    }, [n, ZONE]);
+
+
+    /* ═════════════════════════════════════════════════════════════════
+       MOBILE TOUCH HANDLER
+       ═════════════════════════════════════════════════════════════════ */
+    useEffect(function() {
+      var startY = 0;
+
+      function onStart(e) {
+        startY = e.touches[0].clientY;
+        var st = stateRef.current;
+        if (st === "BEFORE" || st === "AFTER") {
+          if (inZone()) setTouchAction("none");
+        }
+      }
+
+      function onEnd(e) {
+        var dy = startY - e.changedTouches[0].clientY;
+        var st = stateRef.current;
+
+        if (Math.abs(dy) < 25) {
+          if (st !== "ACTIVE") setTouchAction("auto");
+          return;
+        }
+
+        if (st === "BEFORE") {
+          if (dy > 0 && inZone()) {
+            activate(0);
+          } else {
+            setTouchAction("auto");
+          }
+          return;
+        }
+
+        if (st === "ACTIVE") {
+          if (animatingRef.current) return;
+          var cur = cardRef.current;
+          if (dy > 0) {
+            if (cur >= n - 1) { release("AFTER"); return; }
+            snapTo(cur + 1);
+          } else {
+            if (cur <= 0) { release("BEFORE"); return; }
+            snapTo(cur - 1);
+          }
+          return;
+        }
+
+        if (st === "AFTER") {
+          if (dy < 0 && inZone()) {
+            activate(n - 1);
+          } else {
+            setTouchAction("auto");
+          }
+        }
+      }
+
+      window.addEventListener("touchstart", onStart, { passive: true });
+      window.addEventListener("touchend", onEnd, { passive: true });
+      return function() {
+        window.removeEventListener("touchstart", onStart);
+        window.removeEventListener("touchend", onEnd);
+      };
+    }, [n, ZONE]);
+
+
+    /* ═════════════════════════════════════════════════════════════════
+       SCROLLBAR DRAG FALLBACK
+       ═════════════════════════════════════════════════════════════════ */
+    useEffect(function() {
+      function onScroll() {
+        var el = sectionRef.current;
+        if (!el || stateRef.current === "ACTIVE") return;
+        var rect = el.getBoundingClientRect();
+        if (rect.bottom < -100 && stateRef.current === "BEFORE") {
+          stateRef.current = "AFTER"; snapTo(n - 1);
+        }
+        if (rect.top > window.innerHeight + 100 && stateRef.current === "AFTER") {
+          stateRef.current = "BEFORE"; cardRef.current = 0; setCardIndex(0);
+          setTouchAction("auto");
+        }
+      }
+      window.addEventListener("scroll", onScroll, { passive: true });
+      return function() { window.removeEventListener("scroll", onScroll); };
+    }, [n]);
+
+
+    /* ═════════════════════════════════════════════════════════════════
+       KEYBOARD SUPPORT (Arrow keys while section is active)
+       ═════════════════════════════════════════════════════════════════ */
+    useEffect(function() {
+      function onKey(e) {
+        if (stateRef.current !== "ACTIVE") return;
+        if (animatingRef.current) return;
+        var cur = cardRef.current;
+        if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+          e.preventDefault();
+          if (cur >= n - 1) { release("AFTER"); return; }
+          snapTo(cur + 1);
+        }
+        if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+          e.preventDefault();
+          if (cur <= 0) { release("BEFORE"); return; }
+          snapTo(cur - 1);
+        }
+      }
+      window.addEventListener("keydown", onKey);
+      return function() { window.removeEventListener("keydown", onKey); };
+    }, [n]);
+
+
+    /* ═════════════════════════════════════════════════════════════════
+       RENDER
+       ═════════════════════════════════════════════════════════════════ */
+    return h("section", {
+      ref: sectionRef,
+      style: {
+        position: "relative", overflow: "hidden",
+        background: C.cream,
+        height: "100vh",
+        touchAction: touchAction,
+        WebkitOverflowScrolling: "auto",
+      }
+    },
+      h(FilmGrain, { opacity: 0.03 }),
+
+      /* Ambient warm glow */
+      h("div", { style: {
+        position: "absolute", top: "5%", left: "50%",
+        transform: "translateX(-50%)",
+        width: 800, height: 600,
+        background: "radial-gradient(ellipse, rgba(255,140,0,0.05) 0%, transparent 60%)",
+        pointerEvents: "none", zIndex: 0,
+      }}),
+
+      h("div", { style: {
+        position: "relative", zIndex: 2,
+        width: "100%", height: "100%",
+      }},
+
+        /* Top UI: progress bar + counter */
+        h(RopeProgressBar, { activeIndex: cardIndex }),
+        h(SectionCounter, { activeIndex: cardIndex }),
+
+        /* Persistent rope */
+        h(PersistentRope),
+
+        /* Card stage — all departments absolutely positioned */
+        h("div", { style: {
+          position: "absolute", inset: 0,
+          top: 40, bottom: 50,
+        }},
+          SECTIONS.map(function(section, i) {
+            var phase = i - cardIndex;
+            /* Only render nearby slides for performance */
+            if (Math.abs(phase) > 2) return null;
+            return h(DepartmentSlide, {
+              key: i, section: section,
+              phase: phase, mobile: mobile,
+            });
+          })
+        ),
+
+        /* Bottom: dots + counter */
+        h("div", { style: {
+          position: "absolute", bottom: 28,
+          left: "50%", transform: "translateX(-50%)",
+          display: "flex", flexDirection: "column",
+          alignItems: "center", gap: 14, zIndex: 10,
+          opacity: visible ? 1 : 0,
+          transition: "opacity 0.5s ease 0.2s",
+        }},
+          h(TeamDots, { count: n, activeIndex: cardIndex }),
+          h("div", { style: {
+            fontFamily: "'DM Sans', sans-serif", fontSize: 11,
+            fontWeight: 500, color: C.navy + "44",
+            letterSpacing: "0.1em", textTransform: "uppercase",
+          }}, (cardIndex + 1) + " / " + n)
+        ),
+
+        h(ScrollHint, { visible: showHint && visible })
+      )
+    );
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     13. HERO
+     ═══════════════════════════════════════════════════════════════════════ */
+  function Hero() {
+    var scrollArr = useState(0);
+    var scrollY = scrollArr[0]; var setScrollY = scrollArr[1];
+
+    useEffect(function() {
+      function onScroll() { setScrollY(window.scrollY); }
+      window.addEventListener("scroll", onScroll, { passive: true });
+      return function() { window.removeEventListener("scroll", onScroll); };
+    }, []);
+
+    var parallax = scrollY * 0.3;
+    var fade = Math.max(0, 1 - scrollY / 500);
+
+    return h("header", { style: {
+      position: "relative", height: "100vh",
+      display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center",
+      overflow: "hidden", background: C.cream,
+    }},
+      h(FilmGrain, { opacity: 0.035 }),
+
+      /* Warm glow */
+      h("div", { style: {
+        position: "absolute", inset: 0,
+        background: "radial-gradient(ellipse at 50% 40%, rgba(255,140,0,0.07) 0%, transparent 65%)",
+        pointerEvents: "none",
+      }}),
+
+      h("div", { style: {
+        position: "relative", textAlign: "center",
+        transform: "translateY(" + parallax + "px)",
+        opacity: fade, willChange: "transform, opacity",
+      }},
+        h("p", { style: {
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: 12, letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          color: C.orange, marginBottom: 14,
+        }}, "Sol de Ayer \u00B7 Class of 2026"),
+
+        h("h1", { style: {
+          fontFamily: "'Cormorant Garamond', Georgia, serif",
+          fontSize: 64, fontWeight: 600,
+          color: C.navy, margin: "0 0 14px", lineHeight: 1.05,
+        }}, "The Crew"),
+
+        h("p", { style: {
+          fontFamily: "'Cormorant Garamond', Georgia, serif",
+          fontSize: 21, fontStyle: "italic",
+          color: "rgba(26,46,76,0.45)",
+          maxWidth: 440, margin: "0 auto 40px", lineHeight: 1.5,
+        }},
+          "The masterminds behind your", h("br"), "adventure of a lifetime"
+        ),
+
+        /* Decorative emojis */
+        h("div", { style: { display: "flex", justifyContent: "center", gap: 12, marginBottom: 40 } },
+          ["\u2708", "\uD83E\uDDED", "\uD83C\uDDE9\uD83C\uDDF4", "\u2600"].map(function(e, i) {
+            return h("span", { key: i, className: "hero-emoji", style: {
+              fontSize: 24, display: "inline-block",
+              animationDelay: (i * 0.25) + "s",
+            }}, e);
+          })
+        ),
+
+        /* Scroll indicator */
+        h("div", { className: "fade-in-up", style: {
+          display: "flex", flexDirection: "column",
+          alignItems: "center", gap: 8,
+        }},
+          h("p", { style: {
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 11, letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            color: "rgba(26,46,76,0.3)", margin: 0,
+          }}, "Pull to reveal"),
+          h("div", { style: {
+            width: 2, height: 36,
+            background: "linear-gradient(180deg, rgba(196,149,106,0.5), rgba(196,149,106,0))",
+            position: "relative",
+          }},
+            h("div", { className: "drop-ball", style: {
+              width: 8, height: 8, borderRadius: "50%",
+              background: C.orange,
+              position: "absolute", bottom: 0, left: -3,
+            }})
+          )
+        )
+      )
+    );
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     14. FOOTER
+     ═══════════════════════════════════════════════════════════════════════ */
+  function Footer() {
+    return h("footer", { style: {
+      background: C.cream, textAlign: "center",
+      padding: "70px 32px 40px", position: "relative",
+    }},
+      h(FilmGrain, { opacity: 0.035 }),
+      h("div", { style: { position: "relative" } },
+        h("p", { style: {
+          fontFamily: "'Cormorant Garamond', Georgia, serif",
+          fontSize: 28, fontStyle: "italic",
+          color: "rgba(26,46,76,0.3)", marginBottom: 8,
+        }}, "Adventures await! \u2600\uFE0F"),
+        h("p", { style: {
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: 12, color: "rgba(26,46,76,0.25)",
+        }}, "\u00A9 2026 Sol de Ayer. All rights reserved.")
+      )
+    );
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     15. GLOBAL STYLES (injected once)
+     ═══════════════════════════════════════════════════════════════════════ */
+  function GlobalStyles() {
+    return h("style", null, [
+      "@keyframes heroSway { 0%,100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }",
+      ".hero-emoji { animation: heroSway 3.5s ease-in-out infinite; }",
+
+      "@keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }",
+      ".fade-in-up { animation: fadeInUp 1s ease 0.5s both; }",
+
+      "@keyframes dropBall { 0% { bottom: 100%; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { bottom: -8px; opacity: 0; } }",
+      ".drop-ball { animation: dropBall 1.8s ease-in-out infinite; }",
+
+      "@keyframes slideHintL { 0%,100% { transform: translateX(0); opacity: 0.5; } 50% { transform: translateX(-4px); opacity: 1; } }",
+      "@keyframes slideHintR { 0%,100% { transform: translateX(0); opacity: 0.5; } 50% { transform: translateX(4px); opacity: 1; } }",
+      ".hint-arrow-l { animation: slideHintL 1.5s ease-in-out infinite; }",
+      ".hint-arrow-r { animation: slideHintR 1.5s ease-in-out infinite; }",
+
+      /* Scrollbar styling */
+      "::-webkit-scrollbar { width: 6px; }",
+      "::-webkit-scrollbar-track { background: #FBF9F5; }",
+      "::-webkit-scrollbar-thumb { background: rgba(196,149,106,0.3); border-radius: 3px; }",
+      "::-webkit-scrollbar-thumb:hover { background: rgba(196,149,106,0.5); }",
+    ].join("\n"));
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     16. APP
+     ═══════════════════════════════════════════════════════════════════════ */
+  function App() {
+    return h("div", { style: { fontFamily: "'DM Sans', sans-serif", background: C.cream } },
+      h(GlobalStyles),
+      h(Hero),
+      h(TeamSection),
+      h(Footer)
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById("root")).render(h(App));
+  </script>
+</body>
+</html>
