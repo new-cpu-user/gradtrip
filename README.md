@@ -10,12 +10,12 @@ Interactive magazine rack with clickable hotspots that open PDFs inline.
 ├── images/
 │   └── office_magazine_image_2.png     ← Rack photograph
 └── pdfs/
-    ├── argentina.pdf                   ← Top-left magazine
-    ├── buenos-aires.pdf                ← Top-center magazine
-    ├── iguazu.pdf                      ← Top-right magazine
-    ├── salta.pdf                       ← Bottom-left magazine
-    ├── gastronomia.pdf                 ← Bottom-center magazine
-    └── patagonica.pdf                  ← Bottom-right magazine
+    ├── Magazine_1.pdf                   ← Top-left magazine
+    ├── Magazine_2.pdf                ← Top-center magazine
+    ├── Magazine_3.pdf                      ← Top-right magazine
+    ├── Magazine_4.pdf                       ← Bottom-left magazine
+    ├── Magazine_5.pdf                 ← Bottom-center magazine
+    └── Magazine_6.pdf                  ← Bottom-right magazine
 ```
 
 ## Deploy to GitHub Pages
