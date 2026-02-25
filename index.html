@@ -1,1004 +1,760 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sol de Ayer — The Crew</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: auto; }
-    body { font-family: 'DM Sans', sans-serif; background: #FBF9F5; overflow-x: hidden; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sol de Ayer — Argentina Grad Trip 2025</title>
+<meta name="description" content="EHL Class of 2025 Grad Trip — Ten days across Argentina, from Buenos Aires to Patagonia.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════════════════════════════
+   Sol de Ayer — Travel Page (GitHub Pages build)
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+    --gold: #F4C569;
+    --sage: #7CB581;
+    --cream: #F9EFE6;
+    --coral: #E05251;
+    --sky: #3DB3B6;
+    --navy: #043143;
+    --ff-display: 'Cormorant Garamond', serif;
+    --ff-body: 'DM Sans', sans-serif;
+    --journey-card-width: clamp(320px, 55vw, 480px);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+    background: var(--cream);
+    font-family: var(--ff-body);
+    -webkit-font-smoothing: antialiased;
+    color: var(--navy);
+}
+img { display: block; max-width: 100%; }
+a { color: inherit; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(4,49,67,0.12); border-radius: 3px; }
+
+/* ── Film grain ─────────────────────────────────────────────────── */
+.sda-film-grain {
+    position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 150px; opacity: 0.05; mix-blend-mode: multiply;
+}
+.sda-global-grain {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 9999; opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* ── NAV ────────────────────────────────────────────────────────── */
+.sda-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 20px 40px; display: flex; justify-content: space-between;
+    align-items: center; transition: all 0.4s ease;
+}
+.sda-nav.is-scrolled {
+    padding: 12px 40px; background: rgba(249,239,230,0.95);
+    backdrop-filter: blur(20px); border-bottom: 1px solid rgba(4,49,67,0.08);
+}
+.sda-nav__logo {
+    font-family: var(--ff-display); font-size: 22px; font-weight: 700;
+    color: #fff; letter-spacing: 1px; transition: color 0.4s;
+}
+.sda-nav.is-scrolled .sda-nav__logo { color: var(--navy); }
+.sda-nav__links { display: flex; gap: 32px; }
+.sda-nav__link {
+    background: none; border: none; cursor: pointer;
+    font-family: var(--ff-body); font-size: 13px; font-weight: 500;
+    color: rgba(255,255,255,0.9); letter-spacing: 1.5px;
+    text-transform: uppercase; transition: color 0.4s;
+}
+.sda-nav.is-scrolled .sda-nav__link { color: var(--navy); }
+
+@media (max-width: 767px) {
+    .sda-nav { padding: 14px 20px; }
+    .sda-nav__links { gap: 16px; }
+    .sda-nav__link { font-size: 11px; letter-spacing: 1px; }
+}
+
+/* ── Section header ─────────────────────────────────────────────── */
+.sda-section-header { text-align: center; }
+.sda-section-header__kicker {
+    display: block; font-family: var(--ff-body); font-size: 12px;
+    letter-spacing: 4px; text-transform: uppercase; color: var(--gold);
+    margin-bottom: 12px; opacity: 0; transform: translateY(15px);
+    transition: all 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+.sda-section-header__title {
+    font-family: var(--ff-display); font-size: clamp(36px,5vw,52px);
+    font-weight: 300; color: var(--navy); margin: 0 0 16px; line-height: 1.1;
+    opacity: 0; transform: translateY(20px);
+    transition: all 0.8s cubic-bezier(0.16,1,0.3,1) 0.1s;
+}
+.sda-section-header__desc {
+    font-family: var(--ff-body); font-size: 16px;
+    color: rgba(4,49,67,0.45); max-width: 480px; margin: 0 auto; line-height: 1.7;
+    opacity: 0; transform: translateY(15px);
+    transition: all 0.8s cubic-bezier(0.16,1,0.3,1) 0.2s;
+}
+.sda-section-header__rule {
+    width: 48px; height: 2px; background: var(--gold); margin: 24px auto 0;
+    opacity: 0; transition: opacity 1s ease 0.4s;
+}
+.sda-section-header.is-visible .sda-section-header__kicker,
+.sda-section-header.is-visible .sda-section-header__title,
+.sda-section-header.is-visible .sda-section-header__desc,
+.sda-section-header.is-visible .sda-section-header__rule {
+    opacity: 1; transform: translateY(0);
+}
+
+/* ── HERO ───────────────────────────────────────────────────────── */
+.sda-hero {
+    position: relative; height: 100vh; min-height: 700px;
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.sda-hero__bg {
+    position: absolute; inset: 0;
+    background-image: url('https://images.unsplash.com/photo-1612294037637-ec328d0e075e?w=1920&h=1080&fit=crop');
+    background-size: cover; background-position: center;
+    filter: sepia(0.25) saturate(1.3) contrast(1.05) brightness(0.75);
+}
+.sda-hero__overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(4,49,67,0.3) 0%, rgba(4,49,67,0.6) 100%);
+}
+.sda-hero__glow {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 30% 40%, rgba(244,197,105,0.15) 0%, transparent 60%);
+}
+.sda-hero__content {
+    position: relative; z-index: 2; text-align: center;
+    max-width: 800px; padding: 0 24px;
+}
+.sda-hero__kicker {
+    display: block; font-family: var(--ff-body); font-size: 13px;
+    letter-spacing: 4px; text-transform: uppercase;
+    color: rgba(255,255,255,0.7); margin-bottom: 24px;
+    opacity: 0; transform: translateY(20px);
+    transition: all 0.8s cubic-bezier(0.16,1,0.3,1) 0.2s;
+}
+.sda-hero__title {
+    font-family: var(--ff-display); font-size: clamp(56px,10vw,100px);
+    font-weight: 300; color: #fff; line-height: 1; margin: 0 0 16px;
+    opacity: 0; transform: translateY(30px);
+    transition: all 1s cubic-bezier(0.16,1,0.3,1) 0.4s;
+}
+.sda-hero__tagline {
+    font-family: var(--ff-display); font-size: clamp(20px,3vw,32px);
+    font-weight: 300; color: var(--gold); margin: 0 0 12px;
+    opacity: 0; transform: translateY(20px);
+    transition: all 1s cubic-bezier(0.16,1,0.3,1) 0.6s;
+}
+.sda-hero__subtitle {
+    font-family: var(--ff-body); font-size: 16px;
+    color: rgba(255,255,255,0.7); max-width: 520px;
+    margin: 0 auto 48px; line-height: 1.7;
+    opacity: 0; transform: translateY(20px);
+    transition: all 1s cubic-bezier(0.16,1,0.3,1) 0.8s;
+}
+.sda-hero__actions {
+    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+    opacity: 0; transform: translateY(20px);
+    transition: all 1s cubic-bezier(0.16,1,0.3,1) 1s;
+}
+.sda-hero__content.is-loaded .sda-hero__kicker,
+.sda-hero__content.is-loaded .sda-hero__title,
+.sda-hero__content.is-loaded .sda-hero__tagline,
+.sda-hero__content.is-loaded .sda-hero__subtitle,
+.sda-hero__content.is-loaded .sda-hero__actions { opacity: 1; transform: translateY(0); }
+
+.sda-hero__btn {
+    display: inline-block; padding: 14px 32px; border-radius: 50px;
+    font-family: var(--ff-body); font-size: 14px; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; text-decoration: none;
+    transition: all 0.3s ease; cursor: pointer;
+}
+.sda-hero__btn--primary { background: var(--gold); color: var(--navy); border: none; }
+.sda-hero__btn--primary:hover {
+    background: var(--coral); color: #fff;
+    box-shadow: 0 6px 20px rgba(224,82,81,0.3); transform: translateY(-2px);
+}
+.sda-hero__btn--ghost {
+    background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.9);
+    border: 1px solid rgba(255,255,255,0.25); backdrop-filter: blur(10px);
+}
+.sda-hero__btn--ghost:hover { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.4); }
+
+.sda-hero__scroll {
+    position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+    opacity: 0; transition: opacity 1.5s ease 1.5s;
+}
+.sda-hero__content.is-loaded ~ .sda-hero__scroll { opacity: 0.6; }
+.sda-hero__scroll-track {
+    width: 24px; height: 40px; border: 2px solid rgba(255,255,255,0.4);
+    border-radius: 12px; display: flex; justify-content: center; padding-top: 8px;
+}
+.sda-hero__scroll-dot {
+    width: 3px; height: 8px; background: rgba(255,255,255,0.6);
+    border-radius: 2px; animation: sdaBounce 2s ease-in-out infinite;
+}
+@keyframes sdaBounce {
+    0%,100% { transform: translateY(0); opacity: 1; }
+    50% { transform: translateY(8px); opacity: 0.3; }
+}
+
+@media (max-width: 767px) {
+    .sda-hero { min-height: 600px; }
+    .sda-hero__actions { flex-direction: column; align-items: center; }
+}
+
+/* ── HOW TO BOOK ────────────────────────────────────────────────── */
+.sda-book { position: relative; background: var(--cream); }
+.sda-book__sticky {
+    position: sticky; top: 0; height: 100vh;
+    display: flex; flex-direction: column; justify-content: center; padding: 0 24px;
+}
+.sda-book__inner { max-width: 1100px; margin: 0 auto; width: 100%; }
+.sda-book__timeline { position: relative; margin-top: 72px; }
+.sda-book__track {
+    position: absolute; top: 52px; left: 6%; right: 6%;
+    height: 3px; background: rgba(4,49,67,0.08); border-radius: 2px;
+}
+.sda-book__progress {
+    position: absolute; top: 52px; left: 6%; height: 3px; border-radius: 2px;
+    background: linear-gradient(90deg, var(--gold), var(--coral));
+    width: 0%; transition: width 0.15s linear;
+}
+.sda-book__steps { display: flex; justify-content: space-between; position: relative; }
+.sda-book__step {
+    display: flex; flex-direction: column; align-items: center;
+    width: calc(100% / 6); position: relative;
+}
+.sda-book__badge {
+    position: absolute; top: -10px; right: calc(50% - 36px);
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(4,49,67,0.08); color: #fff;
+    font-size: 11px; font-weight: 700; font-family: var(--ff-body);
+    z-index: 3; transition: all 0.5s ease;
+}
+.sda-book__circle {
+    width: 88px; height: 88px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    border: 3px solid rgba(4,49,67,0.08); background: #fff;
+    transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
+}
+.sda-book__icon { font-size: 30px; transition: font-size 0.5s cubic-bezier(0.16,1,0.3,1); }
+.sda-book__label { margin-top: 16px; text-align: center; opacity: 0.4; transition: opacity 0.5s ease; }
+.sda-book__label strong {
+    display: block; font-family: var(--ff-display); font-size: 17px;
+    font-weight: 600; color: var(--navy); margin-bottom: 4px;
+}
+.sda-book__label span {
+    display: block; font-family: var(--ff-body); font-size: 12px;
+    color: rgba(4,49,67,0.45); line-height: 1.4; max-width: 130px; margin: 0 auto;
+}
+.sda-book__step.is-active .sda-book__badge,
+.sda-book__step.is-past .sda-book__badge { background: var(--coral); }
+.sda-book__step.is-active .sda-book__circle {
+    width: 100px; height: 100px; border-color: var(--gold);
+    background: rgba(244,197,105,0.06); transform: scale(1.05);
+    box-shadow: 0 0 0 8px rgba(244,197,105,0.1), 0 8px 32px rgba(244,197,105,0.15);
+}
+.sda-book__step.is-active .sda-book__icon { font-size: 36px; }
+.sda-book__step.is-past .sda-book__circle { border-color: var(--gold); background: rgba(244,197,105,0.06); }
+.sda-book__step.is-active .sda-book__label,
+.sda-book__step.is-past .sda-book__label { opacity: 1; }
+.sda-book__cta { text-align: center; margin-top: 72px; }
+.sda-book__cta-btn {
+    display: inline-block; padding: 16px 48px; border-radius: 50px;
+    background: var(--gold); color: var(--navy); text-decoration: none;
+    font-family: var(--ff-body); font-size: 15px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    box-shadow: 0 4px 24px rgba(244,197,105,0.3); transition: all 0.3s ease;
+}
+.sda-book__cta-btn:hover {
+    background: var(--coral); color: #fff;
+    box-shadow: 0 6px 20px rgba(224,82,81,0.3); transform: translateY(-2px);
+}
+.sda-book__scroll-hint {
+    font-family: var(--ff-body); font-size: 11px; color: rgba(4,49,67,0.25);
+    letter-spacing: 2px; text-transform: uppercase; margin-top: 20px;
+    transition: opacity 0.4s ease;
+}
+
+@media (max-width: 767px) {
+    .sda-book__timeline { margin-top: 48px; }
+    .sda-book__steps { flex-direction: column; align-items: center; gap: 24px; }
+    .sda-book__step { width: 100%; flex-direction: row; gap: 16px; }
+    .sda-book__track, .sda-book__progress { display: none; }
+    .sda-book__badge { position: static; }
+    .sda-book__circle { width: 64px; height: 64px; flex-shrink: 0; }
+    .sda-book__step.is-active .sda-book__circle { width: 72px; height: 72px; }
+    .sda-book__label { text-align: left; }
+}
+
+/* ── JOURNEY ────────────────────────────────────────────────────── */
+.sda-journey {
+    background: linear-gradient(180deg, #FAF6F0 0%, var(--cream) 100%);
+    height: 100vh; padding: 0; position: relative;
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.sda-journey__grain { z-index: 0; opacity: 0.4; }
+.sda-journey__container {
+    flex: 1; display: flex; flex-direction: column;
+    max-width: 1200px; width: 100%; margin: 0 auto;
+    padding: clamp(20px,3vh,40px) clamp(24px,5vw,80px);
+    position: relative; z-index: 1;
+}
+.sda-journey__header { text-align: center; flex-shrink: 0; }
+.sda-journey__stamp {
+    font-family: var(--ff-body); font-size: 11px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px;
+}
+.sda-journey__title {
+    font-family: var(--ff-display); font-weight: 700;
+    font-size: clamp(36px,5vw,56px); color: var(--navy);
+    letter-spacing: -0.02em; margin: 0 0 12px; line-height: 1.1;
+}
+.sda-journey__desc {
+    font-family: var(--ff-body); font-size: clamp(14px,1.6vw,17px);
+    color: rgba(4,49,67,0.55); max-width: 480px; margin: 0 auto; line-height: 1.6;
+}
+.sda-journey__stage {
+    position: relative; flex: 1 1 auto; height: auto;
+    min-height: 180px; margin: clamp(12px,1.5vh,20px) 0; overflow: hidden;
+}
+.sda-journey__glow {
+    position: absolute; top: 5%; left: 50%; transform: translateX(-50%);
+    width: 700px; height: 500px; pointer-events: none; z-index: 0;
+    transition: background 0.4s ease;
+}
+.sda-journey-card {
+    position: absolute; left: 50%; top: 50%;
+    width: var(--journey-card-width); max-width: 480px;
+    will-change: transform, opacity;
+    transition: transform 0.4s cubic-bezier(0.22,1,0.36,1),
+                opacity   0.4s cubic-bezier(0.22,1,0.36,1);
+    cursor: default; user-select: none; z-index: 1;
+}
+.sda-journey-card__inner {
+    position: relative; background: #fff; border-radius: 16px;
+    box-shadow: 0 12px 48px rgba(4,49,67,0.12), 0 2px 8px rgba(4,49,67,0.06);
+    overflow: hidden;
+}
+.sda-journey-card__strip { position: absolute; top: 0; left: 0; right: 0; height: 4px; z-index: 2; }
+.sda-journey-card__image { width: 100%; height: 200px; overflow: hidden; position: relative; }
+.sda-journey-card__image img {
+    width: 100%; height: 100%; object-fit: cover; filter: sepia(0.15) saturate(1.1);
+}
+.sda-journey-card__image-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(0deg, rgba(4,49,67,0.45) 0%, transparent 50%);
+}
+.sda-journey-card__day-badge {
+    position: absolute; bottom: 10px; left: 14px;
+    font-family: var(--ff-body); font-size: 11px;
+    letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.8);
+}
+.sda-journey-card__body { padding: 18px 22px 24px; }
+.sda-journey-card__region {
+    display: inline-block; font-family: var(--ff-body); font-size: 10px;
+    font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 6px;
+}
+.sda-journey-card__title {
+    font-family: var(--ff-display); font-weight: 700;
+    font-size: clamp(20px,2.5vw,26px); color: var(--navy);
+    line-height: 1.15; margin: 0 0 10px;
+}
+.sda-journey-card__text {
+    font-family: var(--ff-body); font-size: 14px;
+    color: rgba(4,49,67,0.55); line-height: 1.75; margin: 0;
+}
+.sda-journey__pagination {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 10px; flex-shrink: 0; margin-bottom: clamp(8px,1vh,14px);
+}
+.sda-journey__dots { display: flex; align-items: center; gap: 8px; }
+.sda-journey__dot {
+    height: 10px; border-radius: 5px; border: none; padding: 0; cursor: pointer;
+    background: rgba(4,49,67,0.08);
+    transition: width 0.4s cubic-bezier(0.22,1,0.36,1), background 0.4s ease;
+}
+.sda-journey__dot--active  { width: 28px; background: var(--gold); }
+.sda-journey__dot--past    { width: 10px; background: rgba(244,197,105,0.53); }
+.sda-journey__dot--future  { width: 10px; background: rgba(4,49,67,0.08); }
+.sda-journey__counter {
+    font-family: var(--ff-body); font-size: 11px; font-weight: 700;
+    color: rgba(4,49,67,0.27); letter-spacing: 0.1em; text-transform: uppercase;
+}
+.sda-journey__region-bar { text-align: center; flex-shrink: 0; min-height: 20px; }
+.sda-journey__region-label {
+    font-family: var(--ff-body); font-size: 11px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: rgba(4,49,67,0.2); transition: opacity 0.4s ease;
+}
+
+@media (max-width: 767px) {
+    .sda-journey { height: auto; padding: clamp(80px,8vw,100px) 0; display: block; }
+    .sda-journey__container { flex: none; display: block; padding: 0 clamp(24px,5vw,40px); }
+    .sda-journey__stage {
+        flex: none; height: clamp(420px,80vw,520px);
+        margin: clamp(48px,4vw,56px) 0 clamp(32px,3vw,40px);
+    }
+    .sda-journey-card { width: calc(100vw - 48px); max-width: 360px; }
+    .sda-journey__pagination { margin-bottom: 32px; }
+}
+@media (max-width: 479px) {
+    .sda-journey-card { width: calc(100vw - 32px); max-width: 320px; }
+    .sda-journey-card__image { height: 160px; }
+}
+
+/* ── FAQ ────────────────────────────────────────────────────────── */
+.sda-faq { padding: clamp(80px,10vw,120px) 24px; background: var(--cream); }
+.sda-faq__inner { max-width: 900px; margin: 0 auto; }
+.sda-faq__categories {
+    display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+    margin-top: 48px; margin-bottom: 48px;
+}
+.sda-faq__cat-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: 50px; cursor: pointer;
+    background: #fff; color: var(--navy); border: 1px solid rgba(4,49,67,0.08);
+    font-family: var(--ff-body); font-size: 13px; font-weight: 600;
+    transition: all 0.3s ease;
+}
+.sda-faq__cat-btn:hover { box-shadow: 0 4px 16px rgba(4,49,67,0.08); }
+.sda-faq__cat-btn[aria-selected="true"] {
+    background: var(--navy); color: #fff; border-color: var(--navy);
+    box-shadow: 0 4px 16px rgba(4,49,67,0.15);
+}
+.sda-faq__cat-icon { font-size: 16px; }
+.sda-faq__item {
+    background: #fff; border-radius: 16px; overflow: hidden;
+    box-shadow: 0 2px 8px rgba(4,49,67,0.04);
+    transition: box-shadow 0.3s ease; margin-bottom: 12px;
+}
+.sda-faq__item.is-open { box-shadow: 0 8px 32px rgba(4,49,67,0.08); }
+.sda-faq__question {
+    width: 100%; display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 28px; background: none; border: none; cursor: pointer;
+    text-align: left; gap: 16px;
+    font-family: var(--ff-display); font-size: 18px;
+    font-weight: 400; color: var(--navy); font-style: italic;
+}
+.sda-faq__item.is-open .sda-faq__question { font-weight: 700; font-style: normal; }
+.sda-faq__toggle {
+    font-family: var(--ff-body); font-size: 24px; font-weight: 300;
+    color: var(--gold); flex-shrink: 0; transition: transform 0.3s ease;
+}
+.sda-faq__answer {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.sda-faq__item.is-open .sda-faq__answer { max-height: 300px; }
+.sda-faq__answer p {
+    padding: 0 28px 24px; font-family: var(--ff-body); font-size: 15px;
+    color: rgba(4,49,67,0.55); line-height: 1.8;
+    border-top: 1px solid var(--cream); padding-top: 16px;
+    margin: 0 28px; padding-left: 0; padding-right: 0;
+}
+
+@media (max-width: 767px) {
+    .sda-faq__categories { gap: 6px; }
+    .sda-faq__cat-btn { padding: 8px 14px; font-size: 12px; }
+    .sda-faq__question { font-size: 16px; padding: 16px 20px; }
+    .sda-faq__answer p { padding: 0 20px 20px; margin: 0 20px; font-size: 14px; }
+}
+
+/* ── FOOTER ─────────────────────────────────────────────────────── */
+.sda-footer { padding: 48px 24px; background: var(--navy); text-align: center; }
+.sda-footer__logo {
+    font-family: var(--ff-display); font-size: 24px; font-weight: 300;
+    color: rgba(255,255,255,0.8); margin-bottom: 8px;
+}
+.sda-footer__sub {
+    font-family: var(--ff-body); font-size: 13px;
+    color: rgba(255,255,255,0.35); letter-spacing: 1px;
+}
+</style>
 </head>
 <body>
-  <div id="root"></div>
 
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<div class="sda-global-grain" aria-hidden="true"></div>
 
-  <script>
-  /* ═══════════════════════════════════════════════════════════════════════
-     SOL DE AYER — TEAM PAGE · SCROLL-SNAP CLOTHESLINE
-     ═══════════════════════════════════════════════════════════════════════
-     
-     Adapts the Events scroll-snap state machine to the Team page.
-     Each "snap" is a department section with Polaroid cards on a rope.
+<!-- NAV -->
+<nav class="sda-nav" id="sda-nav">
+    <div class="sda-nav__logo">SOL DE AYER</div>
+    <div class="sda-nav__links">
+        <button class="sda-nav__link" data-scroll="how-to-book">How to Book</button>
+        <button class="sda-nav__link" data-scroll="sda-journey">Journey</button>
+        <button class="sda-nav__link" data-scroll="faq">FAQ</button>
+    </div>
+</nav>
 
-     STATE MACHINE:
-       BEFORE → user scrolls down, section enters viewport → ACTIVE
-       ACTIVE → departments snap one by one, scroll locked
-       ACTIVE → last department reached + scroll down → AFTER
-       AFTER  → user scrolls back up → ACTIVE (reverse)
-       ACTIVE → first department + scroll up → BEFORE
+<!-- HERO -->
+<section class="sda-hero">
+    <div class="sda-hero__bg" aria-hidden="true"></div>
+    <div class="sda-hero__overlay" aria-hidden="true"></div>
+    <div class="sda-hero__glow" aria-hidden="true"></div>
+    <div class="sda-film-grain" style="z-index:1;opacity:0.06;" aria-hidden="true"></div>
+    <div class="sda-hero__content" id="hero-content">
+        <span class="sda-hero__kicker">École Hôtelière de Lausanne — Class of 2025</span>
+        <h1 class="sda-hero__title">Argentina</h1>
+        <p class="sda-hero__tagline"><em>Ten Days. Four Cities. One Last Adventure.</em></p>
+        <p class="sda-hero__subtitle">From the streets of Buenos Aires to the glaciers of Patagonia — the grad trip you've been waiting four years for.</p>
+        <div class="sda-hero__actions">
+            <a href="#how-to-book" class="sda-hero__btn sda-hero__btn--primary">Book Your Spot</a>
+            <a href="#sda-journey" class="sda-hero__btn sda-hero__btn--ghost">View Journey</a>
+            <a href="#faq" class="sda-hero__btn sda-hero__btn--ghost">Read FAQ</a>
+        </div>
+    </div>
+    <div class="sda-hero__scroll" aria-hidden="true">
+        <div class="sda-hero__scroll-track"><div class="sda-hero__scroll-dot"></div></div>
+    </div>
+</section>
 
-     TIMING CHAIN: 500ms (slightly slower than events for gravitas)
-       - CSS card transition: 0.5s
-       - JS animation lock: 500ms
-       - Wheel cooldown: 500ms
-     ═══════════════════════════════════════════════════════════════════════ */
+<!-- HOW TO BOOK -->
+<section class="sda-book" id="how-to-book">
+    <div class="sda-book__sticky">
+        <div class="sda-book__inner">
+            <div class="sda-section-header" data-observe>
+                <span class="sda-section-header__kicker">Sol de Ayer</span>
+                <h2 class="sda-section-header__title">How to Book</h2>
+                <p class="sda-section-header__desc">Six simple steps to secure your spot on the trip of a lifetime.</p>
+                <div class="sda-section-header__rule" aria-hidden="true"></div>
+            </div>
+            <div class="sda-book__timeline">
+                <div class="sda-book__track" aria-hidden="true"></div>
+                <div class="sda-book__progress" id="book-progress" aria-hidden="true"></div>
+                <div class="sda-book__steps" id="book-steps"></div>
+            </div>
+            <div class="sda-book__cta">
+                <a href="#" class="sda-book__cta-btn">Book Your Spot Now</a>
+                <p class="sda-book__scroll-hint" id="book-hint">Scroll through the steps ↓</p>
+            </div>
+        </div>
+    </div>
+</section>
 
-  "use strict";
-  var useState  = React.useState;
-  var useEffect = React.useEffect;
-  var useRef    = React.useRef;
-  var useCallback = React.useCallback;
-  var h         = React.createElement;
+<!-- JOURNEY -->
+<section class="sda-journey" id="sda-journey">
+    <div class="sda-film-grain sda-journey__grain" aria-hidden="true"></div>
+    <div class="sda-journey__container">
+        <div class="sda-journey__header" data-observe>
+            <div class="sda-journey__stamp">🗺️ ITINERARY</div>
+            <h2 class="sda-journey__title">The Journey</h2>
+            <p class="sda-journey__desc">Ten days across Argentina — from the capital to the glaciers.</p>
+        </div>
+        <div class="sda-journey__stage" id="journey-stage" aria-label="Itinerary carousel">
+            <div class="sda-journey__glow" id="journey-glow" aria-hidden="true"></div>
+        </div>
+        <div class="sda-journey__pagination" aria-label="Day navigation">
+            <div class="sda-journey__dots" id="journey-dots" role="list"></div>
+            <div class="sda-journey__counter" id="journey-counter" aria-live="polite">
+                <span class="sda-journey__counter-current">1</span><span> / </span><span class="sda-journey__counter-total">10</span>
+            </div>
+        </div>
+        <div class="sda-journey__region-bar" aria-hidden="true">
+            <span class="sda-journey__region-label" id="journey-region"></span>
+        </div>
+    </div>
+</section>
 
+<!-- FAQ -->
+<section class="sda-faq" id="faq">
+    <div class="sda-faq__inner">
+        <div class="sda-section-header" data-observe>
+            <span class="sda-section-header__kicker">Sol de Ayer</span>
+            <h2 class="sda-section-header__title">FAQ</h2>
+            <p class="sda-section-header__desc">Everything you need to know before booking.</p>
+            <div class="sda-section-header__rule" aria-hidden="true"></div>
+        </div>
+        <div class="sda-faq__categories" id="faq-cats" role="tablist"></div>
+        <div class="sda-faq__questions" id="faq-questions" role="tabpanel"></div>
+    </div>
+</section>
 
-  /* ═══════════════════════════════════════════════════════════════════════
-     1. DESIGN TOKENS
-     ═══════════════════════════════════════════════════════════════════════ */
-  var C = {
-    orange:    "#FF8C00",
-    navy:      "#1A2E4C",
-    cream:     "#FBF9F5",
-    warmWhite: "#F5EFE6",
-    paper:     "#FFFDF8",
-    rope:      "#B8894A",
-    ropeDark:  "#7A5C1E",
-    ropeLight: "#D9B87A",
-    nail:      "#6B4E1A",
-    grain: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 512 512\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'0.035\'/%3E%3C/svg%3E")',
-    cardGrain: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'0.07\'/%3E%3C/svg%3E")',
-  };
+<!-- FOOTER -->
+<footer class="sda-footer">
+    <div class="sda-footer__logo">Sol de Ayer</div>
+    <div class="sda-footer__sub">EHL Grad Trip 2025 — Buenos Aires to Patagonia</div>
+</footer>
 
+<script>
+(function(){
+'use strict';
 
-  /* ═══════════════════════════════════════════════════════════════════════
-     2. TEAM DATA
-     ═══════════════════════════════════════════════════════════════════════ */
-  var SECTIONS = [
-    {
-      title: "The ones who started it all",
-      emojis: "👑 🎓 🌟",
-      members: [
-        { name: "Nikola Stevanovic", role: "CEO (Chief Escapade Officer)", quote: "Living proof that graduating and partying go together", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_1.jpeg" },
-        { name: "Milo Cuti", role: "VP (Vibes & Parties)", quote: "90% AI-generated, 10% Swiss-Italian, and 100% ready for the Dominican sun", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_2.jpeg" },
-      ],
-    },
-    {
-      title: "Keeping the fun affordable",
-      emojis: "💰 📊 🧮",
-      members: [
-        { name: "Sacha Dassonville & Valery Tay", role: "Budget Wizards", quote: "We strive to maximize the fun/price ratio", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_5.jpeg" },
-      ],
-    },
-    {
-      title: "Making sure you never forget us",
-      emojis: "📸 ✨ 🎨",
-      members: [
-        { name: "Stephanie Clemo & Rosalie Stanek", role: "Vibe Curator · Hype Captain", quote: "Grad trips are like onions. Onions have layers.", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_6.jpeg" },
-        { name: "Sacha Fournier", role: "Vibe Coder", quote: "Running the same deficit at MJC and on Claude credits", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_10.jpeg" },
-      ],
-    },
-    {
-      title: "Drip you can take home",
-      emojis: "👕 🧢 🛍️",
-      members: [
-        { name: "Hugo Gomes de Andrade", role: "Drip Dealer", quote: "As long as the merch stays clean, everything's fine", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_4.jpeg" },
-      ],
-    },
-    {
-      title: "Making sure we get there (and back)",
-      emojis: "🗺️ ✈️ 🧳",
-      members: [
-        { name: "Teo Lonnback", role: "Route Master", quote: "Making sure no one sleeps at the airport", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_7.jpeg" },
-        { name: "Constanza Quintana", role: "Visa Whisperer", quote: "Your favourite visa expert", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_8.jpeg" },
-        { name: "Paulina Chávez", role: "Chaos Coordinator", quote: "It's on time because we panicked early", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_9.jpeg" },
-      ],
-    },
-    {
-      title: "Curating the unforgettable moments",
-      emojis: "🍷 🎉 💃",
-      members: [
-        { name: "Lili Amstutz", role: "Culture Connector", quote: "We'll show them the Dominican sazón and swing", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_3.jpeg" },
-        { name: "Max Bally, Giorgio & Pietro", role: "Head of Fun · Fun Assistants", quote: "fun fun fun", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_14.jpeg" },
-      ],
-    },
-    {
-      title: "Throwing parties with purpose",
-      emojis: "🍹 🎊 🪩",
-      members: [
-        { name: "Diane Bordry", role: "Cocktail Curator", quote: "Because poor decision-making requires proper hydration", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_11.jpeg" },
-        { name: "Claire Berthoud", role: "Party Architect", quote: "Optimistes chaos", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_12.jpeg" },
-        { name: "Helena Riba", role: "Party Architect", quote: "Trading bikes and tapas for palm trees", img: "https://soldeayer.com/wp-content/themes/soldeayer%203.1.7/assets/images/team/picture_13.jpeg" },
-      ],
-    },
-  ];
+/* ── DATA ───────────────────────────────────────────────────────── */
+var ITINERARY=[
+{day:1,title:"Buenos Aires — Arrival",region:"Buenos Aires",color:"#F4C569",image:"https://images.unsplash.com/photo-1589909202802-8f4aadce1849?w=800&h=600&fit=crop",description:"Touch down at Ezeiza International. Private transfer to the boutique hotel in Palermo Soho. Evening welcome asado on a hidden rooftop terrace — meet your crew, raise a Malbec, and watch the sun set over the city skyline."},
+{day:2,title:"Buenos Aires — City Soul",region:"Buenos Aires",color:"#E05251",image:"https://images.unsplash.com/photo-1612294037637-ec328d0e075e?w=800&h=600&fit=crop",description:"Morning walking tour through San Telmo\u2019s cobblestone streets and antique markets. Afternoon in La Boca \u2014 street art, caminito colors, and the raw energy of the barrio. Evening: intimate tango show with dinner in a converted warehouse."},
+{day:3,title:"Buenos Aires — Free Day",region:"Buenos Aires",color:"#3DB3B6",image:"https://images.unsplash.com/photo-1588438685088-521ddc498858?w=800&h=600&fit=crop",description:"Your day to explore. Optional excursions: Tigre Delta boat ride, Recoleta Cemetery walk, or shopping in Palermo\u2019s designer boutiques. Night: group dinner at a closed-door restaurant \u2014 a secret supper club known only to locals."},
+{day:4,title:"Mendoza — Wine Country",region:"Mendoza",color:"#7CB581",image:"https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=800&h=600&fit=crop",description:"Morning flight to Mendoza at the foot of the Andes. Check into a vineyard estate. Afternoon guided tasting tour through three boutique bodegas \u2014 Malbec, Torront\u00e9s, and a surprise orange wine. Sunset picnic among the vines."},
+{day:5,title:"Mendoza — Andes Adventure",region:"Mendoza",color:"#F4C569",image:"https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&h=600&fit=crop",description:"Early rise for a 4\u00d74 expedition into the high Andes. Stop at Puente del Inca\u2019s natural bridge and catch your first glimpse of Aconcagua. Packed lunch at altitude. Return for an evening at the spa with thermal pools and stargazing."},
+{day:6,title:"Bariloche — Lake District",region:"Bariloche",color:"#3DB3B6",image:"https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&h=600&fit=crop",description:"Fly south to San Carlos de Bariloche. The landscape shifts dramatically \u2014 Patagonian lakes, snow-capped peaks, alpine forests. Settle into a lakeside lodge. Afternoon chocolate tasting on the famous Calle Mitre. Evening bonfire by the water."},
+{day:7,title:"Bariloche — Circuito Chico",region:"Bariloche",color:"#7CB581",image:"https://images.unsplash.com/photo-1433838552652-f9a46b332c40?w=800&h=600&fit=crop",description:"Full-day road trip along the legendary Circuito Chico \u2014 panoramic viewpoints, hidden beaches, and a stop at Llao Llao peninsula. Optional kayak session on Lake Nahuel Huapi. Group dinner at a Patagonian lamb restaurant."},
+{day:8,title:"El Calafate — Glacier Territory",region:"El Calafate",color:"#E05251",image:"https://images.unsplash.com/photo-1494500764479-0c8f2919a3d8?w=800&h=600&fit=crop",description:"Fly to El Calafate, gateway to Los Glaciares National Park. Afternoon at leisure in the small Patagonian town \u2014 craft beer, local wool shops, and views of Lago Argentino stretching to the horizon. Briefing for tomorrow\u2019s big day."},
+{day:9,title:"Perito Moreno Glacier",region:"El Calafate",color:"#3DB3B6",image:"https://images.unsplash.com/photo-1484950763426-56b5bf172dbb?w=800&h=600&fit=crop",description:"The main event. Full-day excursion to the Perito Moreno Glacier \u2014 5 km wide, 60 m tall, and actively calving. Walk the catwalks as ice thunders into the water. Optional mini-trekking on the glacier surface with crampons. This is the photo you\u2019ll frame."},
+{day:10,title:"Farewell & Departure",region:"Patagonia",color:"#F4C569",image:"https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&h=600&fit=crop",description:"Final morning in Patagonia. Leisurely breakfast with the group \u2014 time for goodbyes, photo swaps, and one last mate. Transfer to the airport. You leave Argentina different from how you arrived. Hasta la pr\u00f3xima."}
+];
+var STEPS=[
+{num:1,title:"Click Book",desc:"Hit \u201cBook Your Spot Now\u201d above",icon:"\ud83c\udfaf"},
+{num:2,title:"Fill Form",desc:"Complete Google Forms registration",icon:"\ud83d\udcdd"},
+{num:3,title:"Get Link",desc:"Receive exclusive access link",icon:"\ud83d\udd17"},
+{num:4,title:"Choose Package",desc:"Select your trip package",icon:"\ud83d\udccb"},
+{num:5,title:"Checkout",desc:"Purchase your ticket",icon:"\ud83d\udcb3"},
+{num:6,title:"You\u2019re In!",desc:"Get ready for adventure",icon:"\ud83c\udf89"}
+];
+var FAQ_CATS=[
+{id:"flights",label:"Flights",icon:"\u2708\ufe0f"},
+{id:"accommodation",label:"Accommodation",icon:"\ud83c\udfe8"},
+{id:"food",label:"Food & Drink",icon:"\ud83c\udf77"},
+{id:"visa",label:"Visa & Documents",icon:"\ud83d\udcc4"},
+{id:"payments",label:"Payments",icon:"\ud83d\udcb3"},
+{id:"logistics",label:"On-Trip Logistics",icon:"\ud83e\uddf3"}
+];
+var FAQ_DATA=[
+{category:"flights",q:"Are flights included in the trip price?",a:"Yes, all internal flights within Argentina (Buenos Aires \u2192 Mendoza \u2192 Bariloche \u2192 El Calafate) are included. International flights to/from Buenos Aires are NOT included \u2014 you\u2019ll need to book those yourself."},
+{category:"flights",q:"What if I want to arrive earlier or stay longer?",a:"Absolutely! You\u2019re free to book your international flights on your own schedule. We just need you at the hotel by Day 1 evening for the welcome dinner. Let us know your plans so we can arrange your transfer."},
+{category:"flights",q:"What\u2019s the recommended airline from Europe?",a:"Most EHL students fly Swiss/Lufthansa via S\u00e3o Paulo or direct from Madrid with Iberia/LATAM. Book early \u2014 Ezeiza fills up fast during Southern Hemisphere summer."},
+{category:"accommodation",q:"What type of accommodation is provided?",a:"A mix of boutique hotels, vineyard estates, and lakeside lodges \u2014 all handpicked for character. Think design hotels, not chain resorts. Double occupancy with the option to request a specific roommate."},
+{category:"accommodation",q:"Can I get a single room?",a:"Yes, for a supplement of CHF 450 across the full trip. Limited availability \u2014 first come, first served during the booking form."},
+{category:"accommodation",q:"What\u2019s the standard of the hotels?",a:"All properties are 4-star equivalent or above. Expect quality linens, private bathrooms, Wi-Fi, and breakfast included every morning."},
+{category:"food",q:"What meals are included?",a:"All breakfasts and dinners are included. Lunches are on your own \u2014 budget roughly CHF 10\u201315 per lunch locally. Special group meals (asado, closed-door restaurant, glacier picnic) are all covered."},
+{category:"food",q:"What\u2019s NOT included in the price?",a:"Lunches, personal expenses, souvenirs, travel insurance, and optional activities outside the itinerary. Budget approximately CHF 500-700 for additional expenses during the trip."},
+{category:"food",q:"Can dietary restrictions be accommodated?",a:"Yes \u2014 Argentina is very accommodating. Vegetarian, vegan, gluten-free, and halal options are available at all planned meals. Flag your requirements in the booking form."},
+{category:"visa",q:"Do Swiss residents need a visa for Argentina?",a:"No. Swiss passport holders can enter Argentina visa-free for up to 90 days. EU passport holders also generally do not need a visa. Check your specific nationality at the Argentine consulate if unsure."},
+{category:"visa",q:"What documents should I bring?",a:"Passport valid for at least 6 months beyond the trip date, travel insurance proof, and a printed copy of your booking confirmation. We\u2019ll send a full checklist one month before departure."},
+{category:"payments",q:"How do I pay for the trip?",a:"Via Swiss QR-Bill (bank transfer) \u2014 zero transaction fees. You\u2019ll receive a personalized QR-Bill after completing the registration form. TWINT and card payments are available for merchandise only."},
+{category:"payments",q:"Can I pay in installments?",a:"Yes. After your initial deposit of CHF 500, you can split the remaining balance into two installments. Exact dates will be communicated after registration closes."},
+{category:"payments",q:"Why can\u2019t I pay by credit card?",a:"To keep costs down for everyone. Credit card processors charge 2.5\u20133% per transaction \u2014 on a CHF 2,500+ trip, that\u2019s CHF 60-75 in pure fees. QR-Bill transfers are free. We pass savings directly to you."},
+{category:"logistics",q:"What should I pack?",a:"Layers! Argentina in January ranges from 30\u00b0C in Buenos Aires to 5\u00b0C in Patagonia. Bring comfortable walking shoes, a warm jacket, swimwear, and sunscreen. Full packing list sent 3 weeks prior."},
+{category:"logistics",q:"Is travel insurance mandatory?",a:"Strongly recommended but not technically mandatory. We require you to sign a liability waiver. We highly suggest a policy that covers trip cancellation, medical emergencies, and repatriation."},
+{category:"logistics",q:"Will there be free time?",a:"Yes \u2014 Day 3 is entirely free in Buenos Aires, and most days have 2-3 hours of unstructured time. We\u2019ve built the itinerary to balance group experiences with personal exploration."}
+];
 
-  var TOTAL = SECTIONS.length;
-  var ROPE_Y_PCT = 45; /* % from top where the rope sits */
+/* ── 1. NAV ─────────────────────────────────────────────────────── */
+function initNav(){
+    var nav=document.getElementById('sda-nav');
+    window.addEventListener('scroll',function(){nav.classList.toggle('is-scrolled',window.scrollY>50);},{passive:true});
+    nav.querySelectorAll('[data-scroll]').forEach(function(b){
+        b.addEventListener('click',function(){var el=document.getElementById(this.getAttribute('data-scroll'));if(el)el.scrollIntoView({behavior:'smooth'});});
+    });
+}
 
+/* ── 2. HERO ────────────────────────────────────────────────────── */
+function initHero(){setTimeout(function(){document.getElementById('hero-content').classList.add('is-loaded');},100);}
 
-  /* ═══════════════════════════════════════════════════════════════════════
-     3. SHARED UTILITIES
-     ═══════════════════════════════════════════════════════════════════════ */
-
-  function useIsMobile(breakpoint) {
-    var bp = breakpoint || 768;
-    var s = useState(typeof window !== "undefined" ? window.innerWidth < bp : false);
-    var isMobile = s[0]; var set = s[1];
-    useEffect(function() {
-      function check() { set(window.innerWidth < bp); }
-      check();
-      window.addEventListener("resize", check);
-      return function() { window.removeEventListener("resize", check); };
-    }, [bp]);
-    return isMobile;
-  }
-
-  function FilmGrain(props) {
-    return h("div", { style: {
-      position: "absolute", inset: 0, opacity: props.opacity || 0.04,
-      pointerEvents: "none", zIndex: 1,
-      backgroundImage: C.grain, backgroundSize: "200px", mixBlendMode: "multiply",
-    }});
-  }
-
-
-  /* ═══════════════════════════════════════════════════════════════════════
-     4. CLOTHESPIN SVG
-     ═══════════════════════════════════════════════════════════════════════ */
-  function Clothespin(props) {
-    var side = props.side || "left";
-    return h("svg", {
-      width: 20, height: 30, viewBox: "0 0 22 32", fill: "none",
-      style: {
-        position: "absolute", top: -12,
-        left: side === "left" ? "30%" : undefined,
-        right: side === "right" ? "30%" : undefined,
-        zIndex: 3,
-        filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.12))",
-      }
-    },
-      h("rect", { x: 6, y: 0, width: 10, height: 18, rx: 3, fill: "#C4956A", stroke: "#8B6914", strokeWidth: 0.7 }),
-      h("rect", { x: 8, y: 3, width: 6, height: 4, rx: 1.5, fill: "#A37B4F" }),
-      h("line", { x1: 7, y1: 18, x2: 9, y2: 28, stroke: "#8B6914", strokeWidth: 1.4, strokeLinecap: "round" }),
-      h("line", { x1: 15, y1: 18, x2: 13, y2: 28, stroke: "#8B6914", strokeWidth: 1.4, strokeLinecap: "round" })
-    );
-  }
-
-
-  /* ═══════════════════════════════════════════════════════════════════════
-     5. PERSISTENT ROPE (stays fixed across all snap positions)
-     ═══════════════════════════════════════════════════════════════════════ */
-  function PersistentRope() {
-    return h("div", { style: {
-      position: "absolute",
-      top: ROPE_Y_PCT + "%",
-      left: 0, right: 0, height: 8, zIndex: 5,
-      pointerEvents: "none", transform: "translateY(-50%)",
-    }},
-      /* SVG braided rope */
-      h("svg", {
-        width: "100%", height: "8", preserveAspectRatio: "none",
-        style: { display: "block" }
-      },
-        h("defs", null,
-          h("pattern", { id: "ropeWeave", x: 0, y: 0, width: 14, height: 8, patternUnits: "userSpaceOnUse" },
-            h("line", { x1: -1, y1: 8, x2: 7, y2: 0, stroke: C.ropeDark, strokeWidth: 3.5, strokeLinecap: "round" }),
-            h("line", { x1: 6, y1: 8, x2: 14, y2: 0, stroke: C.ropeDark, strokeWidth: 3.5, strokeLinecap: "round" }),
-            h("line", { x1: 0, y1: 8, x2: 8, y2: 0, stroke: C.rope, strokeWidth: 3, strokeLinecap: "round" }),
-            h("line", { x1: 7, y1: 8, x2: 15, y2: 0, stroke: C.rope, strokeWidth: 3, strokeLinecap: "round" }),
-            h("line", { x1: 2, y1: 7, x2: 9, y2: 1, stroke: "#C9A060", strokeWidth: 2, strokeLinecap: "round" }),
-            h("line", { x1: 9, y1: 7, x2: 16, y2: 1, stroke: "#C9A060", strokeWidth: 2, strokeLinecap: "round" }),
-            h("line", { x1: 3, y1: 6, x2: 9, y2: 1.5, stroke: C.ropeLight, strokeWidth: 1, strokeLinecap: "round", opacity: 0.7 }),
-            h("line", { x1: 10, y1: 6, x2: 16, y2: 1.5, stroke: C.ropeLight, strokeWidth: 1, strokeLinecap: "round", opacity: 0.7 })
-          ),
-          h("filter", { id: "ropeFuzz", x: "-2%", y: "-20%", width: "104%", height: "140%" },
-            h("feTurbulence", { type: "fractalNoise", baseFrequency: 0.04, numOctaves: 3, seed: 42, result: "noise" }),
-            h("feDisplacementMap", { in: "SourceGraphic", in2: "noise", scale: 1.2, xChannelSelector: "R", yChannelSelector: "G" })
-          )
-        ),
-        h("rect", { x: 0, y: 0, width: "100%", height: 8, fill: "url(#ropeWeave)", rx: 4, ry: 4, filter: "url(#ropeFuzz)" }),
-        h("line", { x1: 0, y1: 1, x2: "100%", y2: 1, stroke: "rgba(220,190,140,0.25)", strokeWidth: 0.5 }),
-        h("line", { x1: 0, y1: 7, x2: "100%", y2: 7, stroke: "rgba(80,50,10,0.2)", strokeWidth: 0.5 })
-      ),
-      /* Rope shadow */
-      h("div", { style: {
-        position: "absolute", top: 6, left: 20, right: 20, height: 4,
-        background: "rgba(90,60,20,0.08)", borderRadius: "50%", filter: "blur(3px)",
-      }}),
-      /* Left nail */
-      h("div", { style: { position: "absolute", top: -5, left: 24, zIndex: 6 } },
-        h("svg", { width: 16, height: 18, viewBox: "0 0 16 18", fill: "none" },
-          h("circle", { cx: 8, cy: 6, r: 5.5, fill: "url(#nailGradL)", stroke: "#5A3E14", strokeWidth: 0.5 }),
-          h("rect", { x: 6.5, y: 10, width: 3, height: 7, rx: 1, fill: C.nail }),
-          h("defs", null,
-            h("radialGradient", { id: "nailGradL", cx: "40%", cy: "35%" },
-              h("stop", { offset: "0%", stopColor: "#C4956A" }),
-              h("stop", { offset: "100%", stopColor: C.nail })
-            )
-          )
-        )
-      ),
-      /* Right nail */
-      h("div", { style: { position: "absolute", top: -5, right: 24, zIndex: 6 } },
-        h("svg", { width: 16, height: 18, viewBox: "0 0 16 18", fill: "none" },
-          h("circle", { cx: 8, cy: 6, r: 5.5, fill: "url(#nailGradR)", stroke: "#5A3E14", strokeWidth: 0.5 }),
-          h("rect", { x: 6.5, y: 10, width: 3, height: 7, rx: 1, fill: C.nail }),
-          h("defs", null,
-            h("radialGradient", { id: "nailGradR", cx: "40%", cy: "35%" },
-              h("stop", { offset: "0%", stopColor: "#C4956A" }),
-              h("stop", { offset: "100%", stopColor: C.nail })
-            )
-          )
-        )
-      )
-    );
-  }
-
-
-  /* ═══════════════════════════════════════════════════════════════════════
-     6. POLAROID CARD
-     ═══════════════════════════════════════════════════════════════════════ */
-  function PolaroidCard(props) {
-    var member = props.member;
-    var index = props.index;
-    var visible = props.visible;
-    var mobile = props.mobile;
-
-    var hoverArr = useState(false);
-    var hovered = hoverArr[0]; var setHovered = hoverArr[1];
-
-    var swingOffsets = [-3, 2.5, -1.5, 3.5, -2, 2.8];
-    var baseRot = swingOffsets[index % swingOffsets.length];
-    var entryDelay = index * 120;
-
-    var cardW = mobile ? 150 : 190;
-    var imgH = mobile ? 170 : 210;
-
-    return h("div", {
-      onMouseEnter: function() { setHovered(true); },
-      onMouseLeave: function() { setHovered(false); },
-      style: {
-        position: "relative",
-        opacity: visible ? 1 : 0,
-        transform: visible
-          ? "rotate(" + baseRot + "deg) translateY(0px) scale(1)"
-          : "rotate(" + (baseRot + 10) + "deg) translateY(50px) scale(0.88)",
-        transition: "all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) " + entryDelay + "ms",
-        flexShrink: 0,
-      }
-    },
-      h(Clothespin, { side: index % 2 === 0 ? "left" : "right" }),
-      h("div", { style: {
-        background: C.paper,
-        padding: mobile ? "7px 7px 28px" : "9px 9px 36px",
-        boxShadow: hovered
-          ? "0 14px 32px rgba(26,46,76,0.2), 0 2px 8px rgba(0,0,0,0.08)"
-          : "0 4px 14px rgba(26,46,76,0.09), 0 1px 3px rgba(0,0,0,0.05)",
-        width: cardW,
-        cursor: "default",
-        transition: "box-shadow 0.3s ease, transform 0.25s ease",
-        transform: hovered ? "scale(1.05) rotate(0deg)" : "",
-      }},
-        /* Image */
-        h("div", { style: { position: "relative", overflow: "hidden" } },
-          h("img", { src: member.img, alt: member.name, style: {
-            width: "100%", height: imgH, objectFit: "cover", display: "block",
-            filter: "saturate(0.85) contrast(1.05) sepia(0.06)",
-          }}),
-          /* Grain overlay on image */
-          h("div", { style: {
-            position: "absolute", inset: 0,
-            backgroundImage: C.cardGrain, backgroundSize: "150px",
-            mixBlendMode: "overlay", pointerEvents: "none",
-          }})
-        ),
-        /* Caption */
-        h("div", { style: { paddingTop: 7, textAlign: "center" } },
-          h("p", { style: {
-            fontFamily: "'Cormorant Garamond', Georgia, serif",
-            fontSize: mobile ? 12 : 14, fontWeight: 600,
-            color: C.navy, margin: "3px 0 2px", lineHeight: 1.2,
-          }}, member.name),
-          h("p", { style: {
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: mobile ? 9 : 10.5, color: C.orange,
-            margin: "1px 0", letterSpacing: "0.02em",
-          }}, member.role),
-          h("p", { style: {
-            fontFamily: "'Cormorant Garamond', Georgia, serif",
-            fontSize: mobile ? 10 : 11, fontStyle: "italic",
-            color: "rgba(26,46,76,0.4)",
-            margin: "5px 8px 0", lineHeight: 1.3,
-          }}, "\u201C" + member.quote + "\u201D")
-        )
-      )
-    );
-  }
-
-
-  /* ═══════════════════════════════════════════════════════════════════════
-     7. DEPARTMENT SLIDE (snap unit)
-     ═══════════════════════════════════════════════════════════════════════
-     
-     Receives `phase` as integer offset from active department:
-       phase  0 = active (centered, full opacity)
-       phase  1 = next (offset right, faded)
-       phase -1 = previous (offset left, faded)
-     
-     CSS transition creates the snap animation (matches timing chain).
-     ═══════════════════════════════════════════════════════════════════════ */
-  function DepartmentSlide(props) {
-    var section = props.section;
-    var phase = props.phase;
-    var mobile = props.mobile;
-
-    var tx = phase * 110;
-    var opa = 1 - Math.abs(phase) * 1.0;
-    var sc = 1 - Math.abs(phase) * 0.06;
-    var isActive = Math.abs(phase) < 0.3;
-
-    return h("div", { style: {
-      position: "absolute", inset: 0,
-      transform: "translateX(" + tx + "%) scale(" + Math.max(sc, 0.88) + ")",
-      opacity: Math.max(0, Math.min(1, opa)),
-      pointerEvents: isActive ? "auto" : "none",
-      transition: "transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1)",
-      willChange: "transform, opacity",
-      zIndex: isActive ? 5 : 1,
-    }},
-      /* Section header — above the rope line */
-      h("div", { style: {
-        position: "absolute",
-        top: ROPE_Y_PCT + "%",
-        left: 0, right: 0,
-        transform: "translateY(calc(-100% - 24px))",
-        textAlign: "center",
-        padding: "0 20px",
-      }},
-        h("span", { style: {
-          fontSize: mobile ? 22 : 26, display: "block", marginBottom: 6,
-        }}, section.emojis),
-        h("h2", { style: {
-          fontFamily: "'Cormorant Garamond', Georgia, serif",
-          fontSize: mobile ? 22 : 30, fontWeight: 600,
-          color: C.navy, margin: 0, lineHeight: 1.2,
-        }}, section.title)
-      ),
-
-      /* Polaroid cards — hang below the rope */
-      h("div", { style: {
-        position: "absolute",
-        top: ROPE_Y_PCT + "%",
-        left: 0, right: 0,
-        paddingTop: 10,
-        display: "flex",
-        justifyContent: "center",
-        gap: mobile ? 16 : 28,
-        flexWrap: "wrap",
-      }},
-        section.members.map(function(member, i) {
-          return h(PolaroidCard, {
-            key: member.name, member: member, index: i,
-            visible: isActive, mobile: mobile,
-          });
-        })
-      )
-    );
-  }
-
-
-  /* ═══════════════════════════════════════════════════════════════════════
-     8. PROGRESS DOTS
-     ═══════════════════════════════════════════════════════════════════════ */
-  function TeamDots(props) {
-    var count = props.count;
-    var activeIndex = props.activeIndex;
-    return h("div", { style: {
-      display: "flex", alignItems: "center", gap: 10,
-    }},
-      Array.from({ length: count }).map(function(_, i) {
-        var isActive = i === activeIndex;
-        return h("div", { key: i, style: {
-          position: "relative",
-          width: isActive ? 28 : 10, height: 10, borderRadius: 5,
-          background: i < activeIndex ? C.orange + "55" : C.navy + "15",
-          overflow: "hidden",
-          transition: "width 0.5s cubic-bezier(0.22, 1, 0.36, 1), background 0.5s ease",
-        }},
-          isActive && h("div", { style: {
-            position: "absolute", inset: 0, background: C.orange, borderRadius: 5,
-          }}),
-          !isActive && i < activeIndex && h("div", { style: {
-            position: "absolute", inset: 0, background: C.orange + "88", borderRadius: 5,
-          }})
-        );
-      })
-    );
-  }
-
-
-  /* ═══════════════════════════════════════════════════════════════════════
-     9. ROPE PROGRESS BAR (top of section)
-     ═══════════════════════════════════════════════════════════════════════ */
-  function RopeProgressBar(props) {
-    var progress = (props.activeIndex) / (TOTAL - 1);
-    return h("div", { style: {
-      position: "absolute", top: 20, left: 40, right: 40,
-      height: 3, zIndex: 10, borderRadius: 2, overflow: "hidden",
-    }},
-      h("div", { style: {
-        position: "absolute", inset: 0,
-        background: "rgba(196,149,106,0.12)", borderRadius: 2,
-      }}),
-      h("div", { style: {
-        position: "absolute", top: 0, left: 0, bottom: 0,
-        width: (progress * 100) + "%",
-        background: "linear-gradient(90deg, #C4956A, #8B6914)",
-        borderRadius: 2,
-        boxShadow: "0 0 8px rgba(196,149,106,0.3)",
-        transition: "width 0.5s cubic-bezier(0.22, 1, 0.36, 1)",
-      }},
-        h("div", { style: {
-          position: "absolute", inset: 0,
-          background: "repeating-linear-gradient(90deg, transparent 0px, transparent 8px, rgba(0,0,0,0.06) 8px, rgba(0,0,0,0.06) 9px)",
-        }})
-      ),
-      h("div", { style: {
-        position: "absolute", top: -4,
-        left: "calc(" + (progress * 100) + "% - 5px)",
-        width: 11, height: 11, borderRadius: "50%",
-        background: "radial-gradient(circle at 40% 35%, #FF8C00, #CC7000)",
-        boxShadow: "0 1px 4px rgba(255,140,0,0.4)",
-        transition: "left 0.5s cubic-bezier(0.22, 1, 0.36, 1)",
-      }})
-    );
-  }
-
-
-  /* ═══════════════════════════════════════════════════════════════════════
-     10. SECTION COUNTER
-     ═══════════════════════════════════════════════════════════════════════ */
-  function SectionCounter(props) {
-    return h("div", { style: {
-      position: "absolute", top: 22, right: 20, zIndex: 10,
-      fontFamily: "'Cormorant Garamond', Georgia, serif",
-      fontSize: 15, color: "rgba(26,46,76,0.35)", letterSpacing: "0.05em",
-    }},
-      h("span", { style: { color: C.orange, fontWeight: 600, fontSize: 18 } },
-        String(props.activeIndex + 1).padStart(2, "0")),
-      h("span", { style: { margin: "0 4px" } }, "/"),
-      h("span", null, String(TOTAL).padStart(2, "0"))
-    );
-  }
-
-
-  /* ═══════════════════════════════════════════════════════════════════════
-     11. SCROLL HINT
-     ═══════════════════════════════════════════════════════════════════════ */
-  function ScrollHint(props) {
-    return h("div", { style: {
-      position: "absolute", bottom: 56, left: "50%",
-      transform: "translateX(-50%)", zIndex: 10,
-      opacity: props.visible ? 0.7 : 0,
-      transition: "opacity 0.8s ease",
-      pointerEvents: "none", textAlign: "center",
-    }},
-      h("div", { style: {
-        fontFamily: "'DM Sans', sans-serif", fontSize: 12,
-        color: "rgba(26,46,76,0.4)", letterSpacing: "0.06em",
-        display: "flex", alignItems: "center", gap: 8,
-      }},
-        h("span", { className: "hint-arrow-l" }, "\u2190"),
-        "scroll to pull the line",
-        h("span", { className: "hint-arrow-r" }, "\u2192")
-      )
-    );
-  }
-
-
-  /* ═══════════════════════════════════════════════════════════════════════
-     12. TEAM SECTION — SCROLL-SNAP ENGINE
-     ═══════════════════════════════════════════════════════════════════════
-     Adapted from the Events section state machine.
-     
-     ARCHITECTURE:
-     - Section is a normal-flow block (not sticky)
-     - When user scrolls into ZONE, section captures scroll
-     - Cards snap one-at-a-time via CSS transitions
-     - On last card + scroll down → releases scroll
-     ═══════════════════════════════════════════════════════════════════════ */
-  function TeamSection() {
-    var sectionRef = useRef(null);
-    var stateRef = useRef("BEFORE");
-    var cardRef = useRef(0);
-    var n = TOTAL;
-    var mobile = useIsMobile();
-    var ZONE = 300;
-
-    var cardArr = useState(0);
-    var cardIndex = cardArr[0];
-    var setCardIndex = cardArr[1];
-
-    var visArr = useState(false);
-    var visible = visArr[0];
-    var setVisible = visArr[1];
-
-    var hintArr = useState(true);
-    var showHint = hintArr[0];
-    var setShowHint = hintArr[1];
-
-    /* Visibility observer */
-    useEffect(function() {
-      var el = sectionRef.current;
-      if (!el) return;
-      var obs = new IntersectionObserver(function(entries) {
-        if (entries[0].isIntersecting) { setVisible(true); obs.disconnect(); }
-      }, { threshold: 0.1 });
-      obs.observe(el);
-      return function() { obs.disconnect(); };
-    }, []);
-
-    /* touch-action state for mobile scroll lock */
-    var taArr = useState("auto");
-    var touchAction = taArr[0];
-    var setTouchAction = taArr[1];
-
-    /* Animation lock — matches CSS 500ms transition */
-    var ANIM_MS = 500;
-    var animatingRef = useRef(false);
-
-    /* ─── Core functions ─── */
-    function snapTo(idx) {
-      if (idx < 0 || idx >= n) return;
-      cardRef.current = idx;
-      setCardIndex(idx);
-      setShowHint(false);
-      animatingRef.current = true;
-      setTimeout(function() { animatingRef.current = false; }, ANIM_MS);
+/* ── 3. HOW TO BOOK ─────────────────────────────────────────────── */
+function initBook(){
+    var section=document.querySelector('.sda-book'),sw=document.getElementById('book-steps'),
+        prog=document.getElementById('book-progress'),hint=document.getElementById('book-hint');
+    if(!section||!sw)return;
+    var n=STEPS.length,SPS=300,tot=SPS*(n-1);
+    section.style.height=(tot+window.innerHeight)+'px';
+    STEPS.forEach(function(s,i){
+        var el=document.createElement('div');el.className='sda-book__step';el.setAttribute('data-step',i);
+        el.innerHTML='<div class="sda-book__badge">'+s.num+'</div><div class="sda-book__circle"><span class="sda-book__icon">'+s.icon+'</span></div><div class="sda-book__label"><strong>'+s.title+'</strong><span>'+s.desc+'</span></div>';
+        sw.appendChild(el);
+    });
+    var els=sw.querySelectorAll('.sda-book__step');
+    function onScroll(){
+        var r=section.getBoundingClientRect(),si=-r.top,raw=Math.max(0,Math.min(1,si/tot)),
+            a=Math.min(n-1,Math.floor(raw*n));
+        if(prog)prog.style.width=Math.min(raw*105,88)+'%';
+        for(var i=0;i<n;i++){els[i].classList.remove('is-active','is-past');if(i===a)els[i].classList.add('is-active');else if(i<a)els[i].classList.add('is-past');}
+        if(hint)hint.style.opacity=a>=n-1?'0':'0.7';
     }
+    window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+}
 
-    function alignSection() {
-      var el = sectionRef.current;
-      if (!el) return;
-      window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top, behavior: "instant" });
+/* ── 4. JOURNEY — Scroll-lock carousel ──────────────────────────── */
+function initJourney(){
+    var section=document.getElementById('sda-journey'),stage=document.getElementById('journey-stage'),
+        dw=document.getElementById('journey-dots'),ce=document.getElementById('journey-counter'),
+        ge=document.getElementById('journey-glow'),rl=document.getElementById('journey-region');
+    if(!section||!stage)return;
+    var n=ITINERARY.length;
+    ITINERARY.forEach(function(it,i){
+        var c=document.createElement('div');c.className='sda-journey-card';c.setAttribute('data-index',i);
+        if(i!==0)c.setAttribute('aria-hidden','true');
+        c.innerHTML='<div class="sda-journey-card__inner">'+
+            '<div class="sda-journey-card__strip" style="background:linear-gradient(90deg,'+it.color+','+it.color+'88,'+it.color+'44)" aria-hidden="true"></div>'+
+            '<div class="sda-journey-card__image" aria-hidden="true"><img src="'+it.image+'" alt="'+it.title+'" loading="lazy"><div class="sda-journey-card__image-overlay"></div><span class="sda-journey-card__day-badge">Day '+it.day+'</span></div>'+
+            '<div class="sda-journey-card__body"><span class="sda-journey-card__region">'+it.region+'</span><h3 class="sda-journey-card__title">'+it.title+'</h3><p class="sda-journey-card__text">'+it.description+'</p></div>'+
+            '<div class="sda-film-grain" style="opacity:0.025" aria-hidden="true"></div></div>';
+        stage.appendChild(c);
+    });
+    var cards=stage.querySelectorAll('.sda-journey-card'),
+        ZONE=300,COOLDOWN=400,FRESH=30,
+        state='before',ci=0,anim=false,ls=0,acc=0,tsy=0;
+    var dots=[];
+    for(var i=0;i<n;i++){var d=document.createElement('button');d.setAttribute('aria-label','Day '+(i+1)+' of '+n);d.setAttribute('role','listitem');dw.appendChild(d);dots.push(d);(function(x){d.addEventListener('click',function(){if(state==='active')snapTo(x);});}(i));}
+    function inZone(){var t=section.getBoundingClientRect().top;return t>-ZONE&&t<ZONE;}
+    function posCards(){
+        var m=window.innerWidth<768;
+        for(var j=0;j<n;j++){var p=j-ci,tx=p*120,o=Math.max(0,Math.min(1,1-Math.abs(p)*1.2)),s=Math.max(.85,1-Math.abs(p)*.1),r=p*(m?-2:-4),pe=Math.abs(p)<.3?'auto':'none',zi=Math.abs(p)<.15?5:1;
+        var c=cards[j];c.style.transform='translate(-50%,-50%) translateX('+tx+'%) scale('+s+') rotate('+r+'deg)';c.style.opacity=o;c.style.pointerEvents=pe;c.style.zIndex=zi;c.setAttribute('aria-hidden',j===ci?'false':'true');}
+        if(ge){var co=ITINERARY[ci].color;ge.style.background='radial-gradient(ellipse,'+co+'10 0%,transparent 65%)';}
+        if(rl)rl.textContent=ITINERARY[ci].region;
+        dots.forEach(function(d,k){if(k===ci){d.className='sda-journey__dot sda-journey__dot--active';d.style.width='28px';d.style.background='#F4C569';}else if(k<ci){d.className='sda-journey__dot sda-journey__dot--past';d.style.width='10px';d.style.background='rgba(244,197,105,0.53)';}else{d.className='sda-journey__dot sda-journey__dot--future';d.style.width='10px';d.style.background='rgba(4,49,67,0.08)';}});
+        var cur=ce.querySelector('.sda-journey__counter-current');if(cur)cur.textContent=ci+1;
     }
+    function snapTo(x){if(x<0||x>=n)return;ci=x;anim=true;ls=Date.now();acc=0;posCards();setTimeout(function(){anim=false;},400);}
+    function activate(x){state='active';section.style.touchAction='none';var t=section.getBoundingClientRect().top+window.pageYOffset;window.scrollTo({top:t,behavior:'instant'});snapTo(x);}
+    function rlA(){state='after';section.style.touchAction='auto';acc=0;}
+    function rlB(){state='before';section.style.touchAction='auto';acc=0;}
+    posCards();
+    window.addEventListener('wheel',function(e){
+        if(state==='before'){if(e.deltaY>0&&inZone()){e.preventDefault();activate(0);}return;}
+        if(state==='after'){if(e.deltaY<0&&inZone()){e.preventDefault();activate(n-1);}return;}
+        e.preventDefault();var now=Date.now();if(now-ls<COOLDOWN){acc=0;return;}acc+=e.deltaY;if(Math.abs(acc)<FRESH)return;
+        if(acc>0){if(ci<n-1)snapTo(ci+1);else rlA();}else{if(ci>0)snapTo(ci-1);else rlB();}
+    },{passive:false});
+    section.addEventListener('touchstart',function(e){tsy=e.touches[0].clientY;if((state==='before'||state==='after')&&inZone())section.style.touchAction='none';},{passive:true});
+    section.addEventListener('touchend',function(e){
+        var dy=tsy-e.changedTouches[0].clientY;
+        if(Math.abs(dy)<25){if(state!=='active')section.style.touchAction='auto';return;}
+        if(state==='before'){if(dy>0&&inZone())activate(0);else section.style.touchAction='auto';return;}
+        if(state==='active'){if(anim)return;if(dy>0){if(ci<n-1)snapTo(ci+1);else rlA();}else{if(ci>0)snapTo(ci-1);else rlB();}return;}
+        if(state==='after'){if(dy<0&&inZone())activate(n-1);else section.style.touchAction='auto';}
+    },{passive:true});
+    window.addEventListener('scroll',function(){
+        if(state==='active')return;var r=section.getBoundingClientRect();
+        if(r.bottom<-100&&state==='before'){state='after';snapTo(n-1);return;}
+        if(r.top>window.innerHeight+100&&state==='after'){state='before';ci=0;posCards();section.style.touchAction='auto';}
+    },{passive:true});
+}
 
-    function activate(startIdx) {
-      alignSection();
-      stateRef.current = "ACTIVE";
-      setTouchAction("none");
-      snapTo(startIdx);
-    }
+/* ── 5. FAQ ─────────────────────────────────────────────────────── */
+function initFaq(){
+    var cw=document.getElementById('faq-cats'),qw=document.getElementById('faq-questions');
+    if(!cw||!qw)return;var ac='flights';
+    FAQ_CATS.forEach(function(c){var b=document.createElement('button');b.className='sda-faq__cat-btn';b.setAttribute('role','tab');b.setAttribute('data-category',c.id);b.setAttribute('aria-selected',c.id===ac?'true':'false');b.innerHTML='<span class="sda-faq__cat-icon">'+c.icon+'</span>'+c.label;cw.appendChild(b);});
+    FAQ_DATA.forEach(function(f){var it=document.createElement('div');it.className='sda-faq__item';it.setAttribute('data-faq-category',f.category);if(f.category!==ac)it.style.display='none';it.innerHTML='<button class="sda-faq__question" aria-expanded="false"><span>'+f.q+'</span><span class="sda-faq__toggle">+</span></button><div class="sda-faq__answer" aria-hidden="true"><p>'+f.a+'</p></div>';qw.appendChild(it);});
+    var cbs=cw.querySelectorAll('.sda-faq__cat-btn'),its=qw.querySelectorAll('.sda-faq__item');
+    cbs.forEach(function(b){b.addEventListener('click',function(){var cat=this.getAttribute('data-category');cbs.forEach(function(x){x.setAttribute('aria-selected',x.getAttribute('data-category')===cat?'true':'false');});its.forEach(function(it){var s=it.getAttribute('data-faq-category')===cat;it.style.display=s?'':'none';it.classList.remove('is-open');it.querySelector('.sda-faq__question').setAttribute('aria-expanded','false');it.querySelector('.sda-faq__toggle').textContent='+';});});});
+    its.forEach(function(it){it.querySelector('.sda-faq__question').addEventListener('click',function(){var io=it.classList.contains('is-open'),cat=it.getAttribute('data-faq-category');its.forEach(function(o){if(o.getAttribute('data-faq-category')===cat&&o!==it){o.classList.remove('is-open');o.querySelector('.sda-faq__question').setAttribute('aria-expanded','false');o.querySelector('.sda-faq__toggle').textContent='+';}});it.classList.toggle('is-open');this.setAttribute('aria-expanded',!io);it.querySelector('.sda-faq__toggle').textContent=io?'+':'\u2715';});});
+}
 
-    function release(newState) {
-      stateRef.current = newState;
-      setTouchAction("auto");
-    }
+/* ── 6. OBSERVERS ───────────────────────────────────────────────── */
+function initObs(){
+    if(!('IntersectionObserver' in window))return;
+    var obs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('is-visible');obs.unobserve(e.target);}});},{threshold:0.2});
+    document.querySelectorAll('[data-observe]').forEach(function(el){obs.observe(el);});
+}
 
-    function inZone() {
-      var el = sectionRef.current;
-      if (!el) return false;
-      var t = el.getBoundingClientRect().top;
-      return t > -ZONE && t < ZONE;
-    }
-
-
-    /* ═════════════════════════════════════════════════════════════════
-       DESKTOP WHEEL HANDLER
-       ═════════════════════════════════════════════════════════════════ */
-    useEffect(function() {
-      var lastSnap = 0;
-      var COOLDOWN = 500;
-      var postAccum = 0;
-      var FRESH = 30;
-
-      function handler(e) {
-        var el = sectionRef.current;
-        if (!el) return;
-        var delta = e.deltaY;
-        var st = stateRef.current;
-        var now = Date.now();
-
-        if (st === "BEFORE") {
-          if (delta > 0 && inZone()) {
-            e.preventDefault();
-            activate(0);
-            lastSnap = now; postAccum = 0;
-          }
-          return;
-        }
-
-        if (st === "ACTIVE") {
-          e.preventDefault();
-          if (animatingRef.current) return;
-          if (now - lastSnap < COOLDOWN) { postAccum = 0; return; }
-          postAccum += delta;
-          if (Math.abs(postAccum) < FRESH) return;
-
-          if (postAccum > 0) {
-            var cur = cardRef.current;
-            if (cur >= n - 1) { release("AFTER"); return; }
-            snapTo(cur + 1); lastSnap = now; postAccum = 0;
-          } else {
-            var cur2 = cardRef.current;
-            if (cur2 <= 0) { release("BEFORE"); return; }
-            snapTo(cur2 - 1); lastSnap = now; postAccum = 0;
-          }
-          return;
-        }
-
-        if (st === "AFTER") {
-          if (delta < 0 && inZone()) {
-            e.preventDefault();
-            activate(n - 1);
-            lastSnap = now; postAccum = 0;
-          }
-        }
-      }
-      window.addEventListener("wheel", handler, { passive: false });
-      return function() { window.removeEventListener("wheel", handler); };
-    }, [n, ZONE]);
-
-
-    /* ═════════════════════════════════════════════════════════════════
-       MOBILE TOUCH HANDLER
-       ═════════════════════════════════════════════════════════════════ */
-    useEffect(function() {
-      var startY = 0;
-
-      function onStart(e) {
-        startY = e.touches[0].clientY;
-        var st = stateRef.current;
-        if (st === "BEFORE" || st === "AFTER") {
-          if (inZone()) setTouchAction("none");
-        }
-      }
-
-      function onEnd(e) {
-        var dy = startY - e.changedTouches[0].clientY;
-        var st = stateRef.current;
-
-        if (Math.abs(dy) < 25) {
-          if (st !== "ACTIVE") setTouchAction("auto");
-          return;
-        }
-
-        if (st === "BEFORE") {
-          if (dy > 0 && inZone()) {
-            activate(0);
-          } else {
-            setTouchAction("auto");
-          }
-          return;
-        }
-
-        if (st === "ACTIVE") {
-          if (animatingRef.current) return;
-          var cur = cardRef.current;
-          if (dy > 0) {
-            if (cur >= n - 1) { release("AFTER"); return; }
-            snapTo(cur + 1);
-          } else {
-            if (cur <= 0) { release("BEFORE"); return; }
-            snapTo(cur - 1);
-          }
-          return;
-        }
-
-        if (st === "AFTER") {
-          if (dy < 0 && inZone()) {
-            activate(n - 1);
-          } else {
-            setTouchAction("auto");
-          }
-        }
-      }
-
-      window.addEventListener("touchstart", onStart, { passive: true });
-      window.addEventListener("touchend", onEnd, { passive: true });
-      return function() {
-        window.removeEventListener("touchstart", onStart);
-        window.removeEventListener("touchend", onEnd);
-      };
-    }, [n, ZONE]);
-
-
-    /* ═════════════════════════════════════════════════════════════════
-       SCROLLBAR DRAG FALLBACK
-       ═════════════════════════════════════════════════════════════════ */
-    useEffect(function() {
-      function onScroll() {
-        var el = sectionRef.current;
-        if (!el || stateRef.current === "ACTIVE") return;
-        var rect = el.getBoundingClientRect();
-        if (rect.bottom < -100 && stateRef.current === "BEFORE") {
-          stateRef.current = "AFTER"; snapTo(n - 1);
-        }
-        if (rect.top > window.innerHeight + 100 && stateRef.current === "AFTER") {
-          stateRef.current = "BEFORE"; cardRef.current = 0; setCardIndex(0);
-          setTouchAction("auto");
-        }
-      }
-      window.addEventListener("scroll", onScroll, { passive: true });
-      return function() { window.removeEventListener("scroll", onScroll); };
-    }, [n]);
-
-
-    /* ═════════════════════════════════════════════════════════════════
-       KEYBOARD SUPPORT (Arrow keys while section is active)
-       ═════════════════════════════════════════════════════════════════ */
-    useEffect(function() {
-      function onKey(e) {
-        if (stateRef.current !== "ACTIVE") return;
-        if (animatingRef.current) return;
-        var cur = cardRef.current;
-        if (e.key === "ArrowDown" || e.key === "ArrowRight") {
-          e.preventDefault();
-          if (cur >= n - 1) { release("AFTER"); return; }
-          snapTo(cur + 1);
-        }
-        if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
-          e.preventDefault();
-          if (cur <= 0) { release("BEFORE"); return; }
-          snapTo(cur - 1);
-        }
-      }
-      window.addEventListener("keydown", onKey);
-      return function() { window.removeEventListener("keydown", onKey); };
-    }, [n]);
-
-
-    /* ═════════════════════════════════════════════════════════════════
-       RENDER
-       ═════════════════════════════════════════════════════════════════ */
-    return h("section", {
-      ref: sectionRef,
-      style: {
-        position: "relative", overflow: "hidden",
-        background: C.cream,
-        height: "100vh",
-        touchAction: touchAction,
-        WebkitOverflowScrolling: "auto",
-      }
-    },
-      h(FilmGrain, { opacity: 0.03 }),
-
-      /* Ambient warm glow */
-      h("div", { style: {
-        position: "absolute", top: "5%", left: "50%",
-        transform: "translateX(-50%)",
-        width: 800, height: 600,
-        background: "radial-gradient(ellipse, rgba(255,140,0,0.05) 0%, transparent 60%)",
-        pointerEvents: "none", zIndex: 0,
-      }}),
-
-      h("div", { style: {
-        position: "relative", zIndex: 2,
-        width: "100%", height: "100%",
-      }},
-
-        /* Top UI: progress bar + counter */
-        h(RopeProgressBar, { activeIndex: cardIndex }),
-        h(SectionCounter, { activeIndex: cardIndex }),
-
-        /* Persistent rope */
-        h(PersistentRope),
-
-        /* Card stage — all departments absolutely positioned */
-        h("div", { style: {
-          position: "absolute", inset: 0,
-          top: 40, bottom: 50,
-        }},
-          SECTIONS.map(function(section, i) {
-            var phase = i - cardIndex;
-            /* Only render nearby slides for performance */
-            if (Math.abs(phase) > 2) return null;
-            return h(DepartmentSlide, {
-              key: i, section: section,
-              phase: phase, mobile: mobile,
-            });
-          })
-        ),
-
-        /* Bottom: dots + counter */
-        h("div", { style: {
-          position: "absolute", bottom: 28,
-          left: "50%", transform: "translateX(-50%)",
-          display: "flex", flexDirection: "column",
-          alignItems: "center", gap: 14, zIndex: 10,
-          opacity: visible ? 1 : 0,
-          transition: "opacity 0.5s ease 0.2s",
-        }},
-          h(TeamDots, { count: n, activeIndex: cardIndex }),
-          h("div", { style: {
-            fontFamily: "'DM Sans', sans-serif", fontSize: 11,
-            fontWeight: 500, color: C.navy + "44",
-            letterSpacing: "0.1em", textTransform: "uppercase",
-          }}, (cardIndex + 1) + " / " + n)
-        ),
-
-        h(ScrollHint, { visible: showHint && visible })
-      )
-    );
-  }
-
-
-  /* ═══════════════════════════════════════════════════════════════════════
-     13. HERO
-     ═══════════════════════════════════════════════════════════════════════ */
-  function Hero() {
-    var scrollArr = useState(0);
-    var scrollY = scrollArr[0]; var setScrollY = scrollArr[1];
-
-    useEffect(function() {
-      function onScroll() { setScrollY(window.scrollY); }
-      window.addEventListener("scroll", onScroll, { passive: true });
-      return function() { window.removeEventListener("scroll", onScroll); };
-    }, []);
-
-    var parallax = scrollY * 0.3;
-    var fade = Math.max(0, 1 - scrollY / 500);
-
-    return h("header", { style: {
-      position: "relative", height: "100vh",
-      display: "flex", flexDirection: "column",
-      alignItems: "center", justifyContent: "center",
-      overflow: "hidden", background: C.cream,
-    }},
-      h(FilmGrain, { opacity: 0.035 }),
-
-      /* Warm glow */
-      h("div", { style: {
-        position: "absolute", inset: 0,
-        background: "radial-gradient(ellipse at 50% 40%, rgba(255,140,0,0.07) 0%, transparent 65%)",
-        pointerEvents: "none",
-      }}),
-
-      h("div", { style: {
-        position: "relative", textAlign: "center",
-        transform: "translateY(" + parallax + "px)",
-        opacity: fade, willChange: "transform, opacity",
-      }},
-        h("p", { style: {
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: 12, letterSpacing: "0.18em",
-          textTransform: "uppercase",
-          color: C.orange, marginBottom: 14,
-        }}, "Sol de Ayer \u00B7 Class of 2026"),
-
-        h("h1", { style: {
-          fontFamily: "'Cormorant Garamond', Georgia, serif",
-          fontSize: 64, fontWeight: 600,
-          color: C.navy, margin: "0 0 14px", lineHeight: 1.05,
-        }}, "The Crew"),
-
-        h("p", { style: {
-          fontFamily: "'Cormorant Garamond', Georgia, serif",
-          fontSize: 21, fontStyle: "italic",
-          color: "rgba(26,46,76,0.45)",
-          maxWidth: 440, margin: "0 auto 40px", lineHeight: 1.5,
-        }},
-          "The masterminds behind your", h("br"), "adventure of a lifetime"
-        ),
-
-        /* Decorative emojis */
-        h("div", { style: { display: "flex", justifyContent: "center", gap: 12, marginBottom: 40 } },
-          ["\u2708", "\uD83E\uDDED", "\uD83C\uDDE9\uD83C\uDDF4", "\u2600"].map(function(e, i) {
-            return h("span", { key: i, className: "hero-emoji", style: {
-              fontSize: 24, display: "inline-block",
-              animationDelay: (i * 0.25) + "s",
-            }}, e);
-          })
-        ),
-
-        /* Scroll indicator */
-        h("div", { className: "fade-in-up", style: {
-          display: "flex", flexDirection: "column",
-          alignItems: "center", gap: 8,
-        }},
-          h("p", { style: {
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: 11, letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            color: "rgba(26,46,76,0.3)", margin: 0,
-          }}, "Pull to reveal"),
-          h("div", { style: {
-            width: 2, height: 36,
-            background: "linear-gradient(180deg, rgba(196,149,106,0.5), rgba(196,149,106,0))",
-            position: "relative",
-          }},
-            h("div", { className: "drop-ball", style: {
-              width: 8, height: 8, borderRadius: "50%",
-              background: C.orange,
-              position: "absolute", bottom: 0, left: -3,
-            }})
-          )
-        )
-      )
-    );
-  }
-
-
-  /* ═══════════════════════════════════════════════════════════════════════
-     14. FOOTER
-     ═══════════════════════════════════════════════════════════════════════ */
-  function Footer() {
-    return h("footer", { style: {
-      background: C.cream, textAlign: "center",
-      padding: "70px 32px 40px", position: "relative",
-    }},
-      h(FilmGrain, { opacity: 0.035 }),
-      h("div", { style: { position: "relative" } },
-        h("p", { style: {
-          fontFamily: "'Cormorant Garamond', Georgia, serif",
-          fontSize: 28, fontStyle: "italic",
-          color: "rgba(26,46,76,0.3)", marginBottom: 8,
-        }}, "Adventures await! \u2600\uFE0F"),
-        h("p", { style: {
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: 12, color: "rgba(26,46,76,0.25)",
-        }}, "\u00A9 2026 Sol de Ayer. All rights reserved.")
-      )
-    );
-  }
-
-
-  /* ═══════════════════════════════════════════════════════════════════════
-     15. GLOBAL STYLES (injected once)
-     ═══════════════════════════════════════════════════════════════════════ */
-  function GlobalStyles() {
-    return h("style", null, [
-      "@keyframes heroSway { 0%,100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }",
-      ".hero-emoji { animation: heroSway 3.5s ease-in-out infinite; }",
-
-      "@keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }",
-      ".fade-in-up { animation: fadeInUp 1s ease 0.5s both; }",
-
-      "@keyframes dropBall { 0% { bottom: 100%; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { bottom: -8px; opacity: 0; } }",
-      ".drop-ball { animation: dropBall 1.8s ease-in-out infinite; }",
-
-      "@keyframes slideHintL { 0%,100% { transform: translateX(0); opacity: 0.5; } 50% { transform: translateX(-4px); opacity: 1; } }",
-      "@keyframes slideHintR { 0%,100% { transform: translateX(0); opacity: 0.5; } 50% { transform: translateX(4px); opacity: 1; } }",
-      ".hint-arrow-l { animation: slideHintL 1.5s ease-in-out infinite; }",
-      ".hint-arrow-r { animation: slideHintR 1.5s ease-in-out infinite; }",
-
-      /* Scrollbar styling */
-      "::-webkit-scrollbar { width: 6px; }",
-      "::-webkit-scrollbar-track { background: #FBF9F5; }",
-      "::-webkit-scrollbar-thumb { background: rgba(196,149,106,0.3); border-radius: 3px; }",
-      "::-webkit-scrollbar-thumb:hover { background: rgba(196,149,106,0.5); }",
-    ].join("\n"));
-  }
-
-
-  /* ═══════════════════════════════════════════════════════════════════════
-     16. APP
-     ═══════════════════════════════════════════════════════════════════════ */
-  function App() {
-    return h("div", { style: { fontFamily: "'DM Sans', sans-serif", background: C.cream } },
-      h(GlobalStyles),
-      h(Hero),
-      h(TeamSection),
-      h(Footer)
-    );
-  }
-
-  ReactDOM.createRoot(document.getElementById("root")).render(h(App));
-  </script>
+/* ── BOOT ───────────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded',function(){initNav();initHero();initBook();initJourney();initFaq();initObs();});
+}());
+</script>
 </body>
 </html>
-
